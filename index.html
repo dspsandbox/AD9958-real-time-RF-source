@@ -1,0 +1,584 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AD9958 Python library’s documentation! &#8212; AD9958 Python library  documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">AD9958 Python library  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ad9958-python-library-s-documentation">
+<h1>AD9958 Python library’s documentation!<a class="headerlink" href="#ad9958-python-library-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="introduction">
+<h2>INTRODUCTION<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The AD9958 Python library provides a configurable and harware timed interface for a AD9948 DDS. The defined commands are sent over the provided serial port to the chipKit max32 microcontroller and loaded onto the onboard task stack.
+Once the task stack gets started, the saved commands are performed in a sequential.</p>
+<dl class="docutils">
+<dt>Some highlighted capabilities are:</dt>
+<dd><ul class="first last simple">
+<li><strong>Single tone mode</strong>.</li>
+<li><strong>Modulation mode</strong>: 2,4,8, or 16 bit for amplitude, frequency and phase.</li>
+<li><strong>Sweep mode</strong> for amplitude, frequency and phase.</li>
+<li>Simplified setting of <strong>amplitude, frequency and phase registers</strong>.</li>
+<li>Set <strong>profile PINs on AD9958</strong>.</li>
+<li><strong>Internal timer</strong> (~62.5ns step size, ~125ns minimum delay time).</li>
+<li>Wait for <strong>trigger in</strong>.</li>
+<li>Set <strong>trigger out</strong>.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="module-AD9958">
+<span id="code"></span><h2>CODE<a class="headerlink" href="#module-AD9958" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-AD9958"></span><dl class="class">
+<dt id="AD9958.AD9958_class">
+<em class="property">class </em><code class="descclassname">AD9958.</code><code class="descname">AD9958_class</code><span class="sig-paren">(</span><em>ser</em>, <em>ref_clk</em>, <em>PLL_multiplier</em>, <em>chipkit_clk</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main AD9958 class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ser</strong> (<em>serial.Serial</em>) – Serial port object</li>
+<li><strong>ref_clk</strong> (<em>int</em>) – REF_CLK frequency in Hz.</li>
+<li><strong>PLL_multiplier</strong> – PLL multiplier for the AD9958 (SYS_CLK=ref_clk*PLL_multiplier)</li>
+<li><strong>chipkit_clk</strong> (<em>int</em>) – System clock of the chipkit Max 32</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="AD9958.AD9958_class.IO_update">
+<code class="descname">IO_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.IO_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.IO_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an IO update.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.checkStackFinihed">
+<code class="descname">checkStackFinihed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.checkStackFinihed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.checkStackFinihed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the function stack has finished.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.clearPhaseAccumulator">
+<code class="descname">clearPhaseAccumulator</code><span class="sig-paren">(</span><em>doIO_update=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.clearPhaseAccumulator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.clearPhaseAccumulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the phase accumulator of the AD9958. It enables and disables the autoclear phase accumulator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.clearStack">
+<code class="descname">clearStack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.clearStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.clearStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the function stack.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.configureSysClock">
+<code class="descname">configureSysClock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.configureSysClock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.configureSysClock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures the SYS_CLK of the AD9958: sets the VCO gain and the PLL_MULTIPLIER.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.delayTimer">
+<code class="descname">delayTimer</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.delayTimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.delayTimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds the execution for the given amount of time. Uses Timer 2 and Timer 3 of the Chipkit Max32 in 32 bit mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Hold time in seconds (max. 52s)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.disableAutomaticRURD">
+<code class="descname">disableAutomaticRURD</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.disableAutomaticRURD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.disableAutomaticRURD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables the automatic ramp up/down feature controled by <code class="xref py py-func docutils literal"><span class="pre">AD9958_class.setRampPins()</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.enableAutomaticRURD">
+<code class="descname">enableAutomaticRURD</code><span class="sig-paren">(</span><em>stepSize</em>, <em>amplitudeRampRate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.enableAutomaticRURD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.enableAutomaticRURD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the automatic ramp up/down feature controled by <code class="xref py py-func docutils literal"><span class="pre">AD9958_class.setRampPins()</span></code>.</p>
+<p>The total time elapsed after a full ramp up/down is:</p>
+<div class="math">
+<p><img src="_images/math/b51dd32e5b467374d63cab53fa844e0d218c240e.png" alt="\dfrac{2^{10}-1}{SYNC\_CLK} \dfrac{amplitudeRampRate}{2^{stepSize}}"/></p>
+</div><p>For SYS_CLK=4xSYNC_CLK=500MHz this reduces to:</p>
+<div class="math">
+<p><img src="_images/math/61f9543aa08a0c8d9fdfaeae0e7542a8414f1292.png" alt="8.2\dfrac{amplitudeRampRate}{2^{stepSize}}\;\; us"/></p>
+</div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stepSize</strong> (<em>int</em>) – Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}.</li>
+<li><strong>amplitudeRampRate</strong> (<em>int</em>) – DAC step size. Accepted values: 0-255.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.findOptimalRamp">
+<code class="descname">findOptimalRamp</code><span class="sig-paren">(</span><em>rampTypeSelect</em>, <em>lowValue</em>, <em>highValue</em>, <em>rampUpTime</em>, <em>rampDownTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.findOptimalRamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.findOptimalRamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the optimal values for RSRR,RDW,FSRR,FDW for a given ramp. Each rising (R) or falling (F) ramps  is characterized by a  rising/falling delta word xDW and rising/faling delta time calculated from xSRR.
+For a given xSRR the time steps, the total number of initiated time steps and slopes are:</p>
+<div class="math">
+<p><img src="_images/math/35b0cab27a6a18a0b4ddc38fdf30bafb5dbdbb60.png" alt="\Delta t &amp;=\mbox{SYNC\_CLK}\cdot xSRR \\
+N_{time\; steps} &amp;=\mbox{ceil} \Big( \dfrac{rampXTime}{\Delta t} \Big) \\
+slope &amp;= \dfrac{E0-S0}{rampXTime}"/></p>
+</div><p>where SYNC_CLK=SYS_CLK/4=125MHz and S0 and E0 are the start and end points of the ramp written into the 32 bit registers of the AD9958. The xDW is calculated as follows:</p>
+<div class="math">
+<p><img src="_images/math/8f2e525c4fb6cb3258e8dbc3601f819ed2f0139b.png" alt="xDW=\mbox{ceil} \Big( \dfrac{E0-S0}{N_{time\; steps}} \Big)"/></p>
+</div><p>The figure of merit <img class="math" src="_images/math/c6e4ff26b53b5d382fc8d80b602a9c95be59adc4.png" alt="\xi"/> evaluates the deviation form the obtained sweep to an ideal linear ramp:</p>
+<div class="math">
+<p><img src="_images/math/41a4f2b5be825ef76677b06ac8ceea6f971b2ffc.png" alt="\xi=\sum_{i=1}^{N_{DAC \; steps}} \int_{(i-1)\cdot \Delta t}^{i\cdot\Delta t}dt( i \cdot xDW -slope\cdot t )^2        +         \int_{N_{DAC \; steps} \cdot \Delta t}^{rampXTime}dt( N_{DAC \; steps} \cdot xDW -slope\cdot t )^2"/></p>
+</div><p>where <img class="math" src="_images/math/28d122f2dea557246c6ba90ce87399d7281e94e9.png" alt="N_{DAC \; steps}=\mbox{floor} \Big( \dfrac{E0-S0}{xDW} \Big)"/></p>
+<p>For all xSRR ranging form 1 to 255, the figure of merit is evaluated analytically. The mimum of them is chosen as the optimum ramp parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rampTypeSelect</strong> – Type of ramp: “amplitude”, “frequency” or “phase”.</li>
+<li><strong>lowValue</strong> (<em>float</em>) – Low value in the units of amplitude,frequency or phase.</li>
+<li><strong>highValue</strong> (<em>float</em>) – High value in the units of amplitude,frequency or phase.</li>
+<li><strong>rampUpTime</strong> (<em>float</em>) – Ramp up time in s.</li>
+<li><strong>rampDownTime</strong> (<em>float</em>) – Ramp down time in s.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[RSRR,RDW,FSRR,FDW]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The AD9958 register overflows during a rising sweep when <img class="math" src="_images/math/80f6163b9a4d3ba601022f8871c6e75001205081.png" alt="RDW\cdot \Tilde{N}_{DAC \; steps}+S0\geq 2^{32}"/> where <img class="math" src="_images/math/da75aeb4ee0614723d53505f342d1f31c2f7791d.png" alt="\Tilde{N}_{DAC \; steps}=\mbox{ceil} \Big( \dfrac{E0-S0}{xDW} \Big)"/>. 
+The current implementation of <a class="reference internal" href="#AD9958.AD9958_class.findOptimalRamp" title="AD9958.AD9958_class.findOptimalRamp"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.findOptimalRamp()</span></code></a> excludes solutions leading to a register overflow. In case no alternative solution can be found, an error is raised and [0,0,0,0] is returned.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the AD9958 chip by pulsing the RESET pin.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.resetTimer">
+<code class="descname">resetTimer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.resetTimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.resetTimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the internal timer (Timer 4 and Timer 5 of the Chipkit Max32) used for <a class="reference internal" href="#AD9958.AD9958_class.waitForTimer" title="AD9958.AD9958_class.waitForTimer"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.waitForTimer()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.runStack">
+<code class="descname">runStack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.runStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.runStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the function stack. Flushes the serial intput buffer in order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setAmplitude">
+<code class="descname">setAmplitude</code><span class="sig-paren">(</span><em>channelId</em>, <em>amplitude</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setAmplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setAmplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the amplitude for a given channel ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (minVal=0 maxVal=15)</li>
+<li><strong>amplitude</strong> (<em>float</em>) – amplitude (minVal=0 maxVal=1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setAmplitudeTuningWord">
+<code class="descname">setAmplitudeTuningWord</code><span class="sig-paren">(</span><em>channelId</em>, <em>tuningWord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setAmplitudeTuningWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setAmplitudeTuningWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the amplitude tuning word. Perfroms the amplitude register mapping from channelId to the AD9958 register addresses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (minVal=0 maxVal=15)</li>
+<li><strong>tuningWord</strong> (<em>int</em>) – amplitude tuning word (minVal=0 maxVal=2^10-1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setAutomaticRURDPins">
+<code class="descname">setAutomaticRURDPins</code><span class="sig-paren">(</span><em>ch0Flag</em>, <em>ch1Flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setAutomaticRURDPins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setAutomaticRURDPins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the amplitude to be ramped up or down on channel 0 and channel 1 .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ch0Flag</strong> (<em>bool</em>) – amplitude ramp flag (True-&gt;ramp up; False-&gt;ramp down)</li>
+<li><strong>ch1Flag</strong> (<em>bool</em>) – amplitude ramp flag (True-&gt;ramp up; False-&gt;ramp down)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setDACFullScale">
+<code class="descname">setDACFullScale</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setDACFullScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setDACFullScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the DAC output amplitude to full scale.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setEnabledChannels">
+<code class="descname">setEnabledChannels</code><span class="sig-paren">(</span><em>setCh0Enabled</em>, <em>setCh1Enabled</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setEnabledChannels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setEnabledChannels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the active channels for reading/writting the AD9958 registers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>setCh0Enabled</strong> (<em>bool</em>) – Flag for channel 0.</li>
+<li><strong>setCh1Enabled</strong> (<em>bool</em>) – Flag for channel 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The output power (amplitude) of each channel is not changed. The function <a class="reference internal" href="#AD9958.AD9958_class.setAmplitude" title="AD9958.AD9958_class.setAmplitude"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.setAmplitude()</span></code></a> can be used for this purpose.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setFreq">
+<code class="descname">setFreq</code><span class="sig-paren">(</span><em>channelId</em>, <em>freq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setFreq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setFreq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the frequency for a given channel ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (minVal=0 maxVal=15)</li>
+<li><strong>freq</strong> (<em>float</em>) – frequency in Hz (minVal=0 maxVal=SYS_CLK*(2^32-1)/2^32= 499999999.8835)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setFreqTuningWord">
+<code class="descname">setFreqTuningWord</code><span class="sig-paren">(</span><em>channelId</em>, <em>tuningWord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setFreqTuningWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setFreqTuningWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the frequency tuning word. Perfroms the frequency register mapping from channelId to the AD9958 register addresses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (0-15)</li>
+<li><strong>tuningWord</strong> (<em>int</em>) – frequency tuning word  (minVal=0 maxVal=2^32-1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setModulationMode">
+<code class="descname">setModulationMode</code><span class="sig-paren">(</span><em>modulationTypeSelect</em>, <em>modulationLevelSelect</em>, <em>priorityChannel</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setModulationMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setModulationMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the modulation mode. For modulation levels 8 and 16, the PPC bits are set such that the profile PINs are only assigned to the priority channel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>modulationTypeSelect</strong> (<em>str</em>) – Type of modulation: “amplitude”, “frequency” or “phase”.</li>
+<li><strong>modulationLevelSelect</strong> (<em>int</em>) – Depth of modulation: 2,4,8,16.</li>
+<li><strong>priorityChannel</strong> (<em>int</em>) – Channel (0 or 1) for which the modulation is set up in case of modulations levels 8 and 16.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setModulationRegister">
+<code class="descname">setModulationRegister</code><span class="sig-paren">(</span><em>regChannel0</em>, <em>regChannel1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setModulationRegister"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setModulationRegister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the active amplitude/frequency/phase register for the ongoing modulation/sweep. Profile pins are set according to the modulation level and priority channel (encoded in PPC).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>regChannel0</strong> (<em>int</em>) – Active register for channel 0.</li>
+<li><strong>regChannel1</strong> (<em>int</em>) – Active register for channel 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setPhase">
+<code class="descname">setPhase</code><span class="sig-paren">(</span><em>channelId</em>, <em>phase</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setPhase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the phase for a given channel ID .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (minVal=0 maxVal=15)</li>
+<li><strong>phase</strong> (<em>float</em>) – phase in degrees (minVal=0 maxVal=360*(2^14-1)/2^14=359.9780)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setPhaseTuningWord">
+<code class="descname">setPhaseTuningWord</code><span class="sig-paren">(</span><em>channelId</em>, <em>tuningWord</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setPhaseTuningWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setPhaseTuningWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the phase tuning word. Perfroms the phase register mapping from channelId to the AD9958 register addresses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channelId</strong> (<em>int</em>) – channel ID (minVal=0 maxVal=15)</li>
+<li><strong>tuningWord</strong> (<em>int</em>) – phase tuning word (minVal=0 maxVal=2^14-1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setProfilePins">
+<code class="descname">setProfilePins</code><span class="sig-paren">(</span><em>pin0Flag</em>, <em>pin1Flag</em>, <em>pin2Flag</em>, <em>pin3Flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setProfilePins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setProfilePins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the profile pins output sates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pin0Flag</strong> (<em>bool</em>) – Profile pin 0 state.</li>
+<li><strong>pin1Flag</strong> (<em>bool</em>) – Profile pin 1 state.</li>
+<li><strong>pin2Flag</strong> (<em>bool</em>) – Profile pin 2 state.</li>
+<li><strong>pin3Flag</strong> (<em>bool</em>) – Profile pin 3 state.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setRegister">
+<code class="descname">setRegister</code><span class="sig-paren">(</span><em>registerAddress</em>, <em>registerValue</em>, <em>doIO_update=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setRegister"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setRegister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets an internal register of the AD9958</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>registerAddress</strong> (<em>int</em>) – Register address.</li>
+<li><strong>registerValue</strong> (<em>int</em>) – Value to be written into the register.</li>
+<li><strong>doIO_update</strong> (<em>bool</em>) – Performs an IO update after writting to the register (Default is True).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setSingleToneMode">
+<code class="descname">setSingleToneMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setSingleToneMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setSingleToneMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the Single Tone Mode of the AD9958.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setSweepMode">
+<code class="descname">setSweepMode</code><span class="sig-paren">(</span><em>sweepTypeSelect</em>, <em>lowValue</em>, <em>highValue</em>, <em>rampUpTime</em>, <em>rampDownTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setSweepMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setSweepMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the sweep mode. The optimal RSRR,RDW,FSRR,FDW values are found using <a class="reference internal" href="#AD9958.AD9958_class.findOptimalRamp" title="AD9958.AD9958_class.findOptimalRamp"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.findOptimalRamp()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sweepTypeSelect</strong> (<em>str</em>) – Type of sweep: “amplitude”, “frequency” or “phase”.</li>
+<li><strong>lowValue</strong> (<em>float</em>) – Low value in the units of amplitude,frequency or phase.</li>
+<li><strong>highValue</strong> (<em>float</em>) – High value in the units of amplitude,frequency or phase.</li>
+<li><strong>rampUpTime</strong> (<em>float</em>) – Ramp up time in s.</li>
+<li><strong>rampDownTime</strong> (<em>float</em>) – Ramp down time in s.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The optimal ramp found via <a class="reference internal" href="#AD9958.AD9958_class.findOptimalRamp" title="AD9958.AD9958_class.findOptimalRamp"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.findOptimalRamp()</span></code></a> is protected from a register overflow. However, if <strong>highValue</strong> is too close to its maximum, there might be no suitable ramp up for the chosen parameters. In this case, an error message is raized and RSRR,RDW,FSRR,FDW are set to 0.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setTriggerOut">
+<code class="descname">setTriggerOut</code><span class="sig-paren">(</span><em>flag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setTriggerOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setTriggerOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the state of the output trigger pin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flag</strong> (<em>bool</em>) – Trigger state.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.waitForTimer">
+<code class="descname">waitForTimer</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.waitForTimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.waitForTimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits until the the internal timer has reached the specified time. Uses Timer 4 and Timer 5 of the Chipkit Max32 in 32 bit mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>float</em>) – Value of the timer (in s) until execution is resumed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.waitTriggerIn">
+<code class="descname">waitTriggerIn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.waitTriggerIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.waitTriggerIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits for a logic high on the trigger input port.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">AD9958 Python library’s documentation!</a><ul>
+<li><a class="reference internal" href="#introduction">INTRODUCTION</a></li>
+<li><a class="reference internal" href="#module-AD9958">CODE</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">AD9958 Python library  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Pau Gomez Kabelka.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+    </div>
+  </body>
+</html>
