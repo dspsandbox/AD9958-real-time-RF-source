@@ -1,0 +1,36 @@
+.. AD9958 Python library documentation master file, created by
+   sphinx-quickstart on Thu Sep 28 11:20:32 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+AD9958 Python library's documentation!
+=================================================
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+INTRODUCTION 
+************
+The AD9958 Python library provides a configurable and harware timed interface for a AD9948 DDS. The defined commands are sent over the provided serial port to the chipKit max32 microcontroller and loaded onto the onboard task stack. 
+Once the task stack gets started, the saved commands are performed in a sequential. 
+
+Some highlighted capabilities are:
+	* **Single tone mode**.
+	* **Modulation mode**: 2,4,8, or 16 bit for amplitude, frequency and phase.
+	* **Sweep mode** for amplitude, frequency and phase.
+	* Simplified setting of **amplitude, frequency and phase registers**.
+	* Set **profile PINs on AD9958**.
+	* **Internal timer** (~62.5ns step size, ~125ns minimum delay time).
+	* Wait for **trigger in**.
+	* Set **trigger out**.
+	
+
+CODE
+****
+
+
+
+.. automodule:: AD9958
+	:members:
+	:undoc-members:

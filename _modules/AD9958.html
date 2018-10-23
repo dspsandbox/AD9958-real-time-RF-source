@@ -1,0 +1,905 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AD9958 &#8212; AD9958 Python library  documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">AD9958 Python library  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for AD9958</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: AD9958</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">serial</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="AD9958_class"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class">[docs]</a><span class="k">class</span> <span class="nc">AD9958_class</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Main AD9958 class</span>
+
+<span class="sd">		:param ser: Serial port object </span>
+<span class="sd">		:type ser: serial.Serial </span>
+<span class="sd">		:param ref_clk: REF_CLK frequency in Hz.</span>
+<span class="sd">		:type ref_clk: int</span>
+<span class="sd">		:param PLL_multiplier: PLL multiplier for the AD9958 (SYS_CLK=ref_clk*PLL_multiplier)</span>
+<span class="sd">		:type PLL_MULTIPLIER: int</span>
+<span class="sd">		:param chipkit_clk: System clock of the chipkit Max 32</span>
+<span class="sd">		:type chipkit_clk: int</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ser</span><span class="p">,</span><span class="n">ref_clk</span><span class="p">,</span><span class="n">PLL_multiplier</span><span class="p">,</span><span class="n">chipkit_clk</span><span class="p">):</span>	
+	<span class="c1">#Clock properties</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">REF_CLK</span><span class="o">=</span><span class="n">ref_clk</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">PLL_MULTIPLIER</span><span class="o">=</span><span class="n">PLL_multiplier</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">REF_CLK</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">PLL_MULTIPLIER</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">CHIPKIT_CLK</span><span class="o">=</span><span class="n">chipkit_clk</span>
+	<span class="c1">#Enables channels</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span><span class="o">=</span><span class="mi">1</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ch1Enabled</span><span class="o">=</span><span class="mi">1</span>
+
+	<span class="c1"># Starting communication</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">=</span><span class="n">ser</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+	<span class="c1"># Modulation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
+		
+	<span class="c1">#Initializing register map</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Register map of channel 0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Register map of channel 1</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Current register map</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">commonRegisters</span><span class="o">=</span><span class="p">[</span><span class="mh">0x00</span><span class="p">,</span><span class="mh">0x01</span><span class="p">,</span><span class="mh">0x02</span><span class="p">]</span> <span class="c1">#Registeres shared between channel 0 and channel 1</span>
+		
+		
+		
+		
+<span class="c1">###############################################################################################################</span>
+<span class="c1"># Functions oustide stack (no precise timing)</span>
+<span class="c1">###############################################################################################################</span>
+<div class="viewcode-block" id="AD9958_class.reset"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.reset">[docs]</a>	<span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Resets the AD9958 chip by pulsing the RESET pin.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;reset</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+		
+<div class="viewcode-block" id="AD9958_class.setRegister"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setRegister">[docs]</a>	<span class="k">def</span> <span class="nf">setRegister</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets an internal register of the AD9958</span>
+<span class="sd">		</span>
+<span class="sd">		:param registerAddress: Register address.</span>
+<span class="sd">		:type registerAddress: int</span>
+<span class="sd">		:param registerValue: Value to be written into the register.</span>
+<span class="sd">		:type registerValue: int</span>
+<span class="sd">		:param doIO_update: Performs an IO update after writting to the register (Default is True).</span>
+<span class="sd">		:type doIO_update: bool</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setRegister &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">registerValue</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">doIO_update</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>	
+		
+		<span class="c1">#Individual registers</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span> <span class="ow">or</span> <span class="p">(</span><span class="n">registerAddress</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commonRegisters</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">registerMap0</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">]</span><span class="o">=</span><span class="n">registerValue</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch1Enabled</span> <span class="ow">or</span> <span class="p">(</span><span class="n">registerAddress</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commonRegisters</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">registerMap1</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">]</span><span class="o">=</span><span class="n">registerValue</span>
+		<span class="c1">#Working register</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap0</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch1Enabled</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap1</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap0</span><span class="o">|</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap1</span>
+		
+		<span class="k">return</span></div>
+			
+	<span class="c1"># def readRegister(self,registerAddress):</span>
+		<span class="c1"># self.ser.write(&quot;readRegister &quot;+str(registerAddress)+&quot; \n&quot;)</span>
+		<span class="c1"># line = self.ser.readline()   # read a &#39;\n&#39; terminated line</span>
+		<span class="c1"># registerValue=int(line[:-1]) #removes &quot;\n&quot; terminator and converts to int</span>
+		
+		<span class="c1"># if self.ch0Enabled or (registerAddress in self.commonRegisters):</span>
+			<span class="c1"># self.registerMap0[registerAddress]=registerValue</span>
+		<span class="c1"># if self.ch1Enabled or (registerAddress in self.commonRegisters):</span>
+			<span class="c1"># self.registerMap1[registerAddress]=registerValue</span>
+		
+		<span class="c1"># return </span>
+		
+	<span class="c1"># def readAllRegisters(self):</span>
+		<span class="c1"># ch0EnabledAux=self.ch0Enabled</span>
+		<span class="c1"># ch1EnabledAux=self.ch1Enabled</span>
+		<span class="c1"># #Reading registers of channel 0</span>
+		<span class="c1"># self.setEnabledChannels(1,0)</span>
+		<span class="c1"># for i in range (0,25):</span>
+			<span class="c1"># self.readRegister(i)</span>
+			
+		<span class="c1"># # Reading registers of channel 1</span>
+		<span class="c1"># self.setEnabledChannels(0,1)</span>
+		<span class="c1"># for i in range (0,25):</span>
+			<span class="c1"># self.readRegister(i)</span>
+		<span class="c1"># self.setEnabledChannels(ch0EnabledAux,ch1EnabledAux)</span>
+		<span class="c1"># return</span>
+
+		
+<div class="viewcode-block" id="AD9958_class.setEnabledChannels"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setEnabledChannels">[docs]</a>	<span class="k">def</span> <span class="nf">setEnabledChannels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">setCh0Enabled</span><span class="p">,</span><span class="n">setCh1Enabled</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets the active channels for reading/writting the AD9958 registers.  </span>
+<span class="sd">			</span>
+<span class="sd">		:param setCh0Enabled: Flag for channel 0.</span>
+<span class="sd">		:type setCh0Enabled: bool</span>
+<span class="sd">		:param setCh1Enabled: Flag for channel 1.</span>
+<span class="sd">		:type setCh1Enabled: bool</span>
+<span class="sd">		</span>
+<span class="sd">		.. note::</span>
+<span class="sd">		</span>
+<span class="sd">			The output power (amplitude) of each channel is not changed. The function :func:`AD9958_class.setAmplitude` can be used for this purpose.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span><span class="o">=</span><span class="n">setCh0Enabled</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ch1Enabled</span><span class="o">=</span><span class="n">setCh1Enabled</span>
+		
+		<span class="n">flag</span><span class="o">=</span><span class="p">((</span><span class="n">setCh1Enabled</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">7</span><span class="p">)</span><span class="o">+</span><span class="p">((</span><span class="n">setCh0Enabled</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">6</span><span class="p">)</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x00</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="n">flag</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		
+		
+		<span class="k">return</span> </div>
+
+<div class="viewcode-block" id="AD9958_class.configureSysClock"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.configureSysClock">[docs]</a>	<span class="k">def</span> <span class="nf">configureSysClock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Configures the SYS_CLK of the AD9958: sets the VCO gain and the PLL_MULTIPLIER. 		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x01</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">&gt;</span><span class="mf">255e6</span><span class="p">:</span>
+			<span class="n">VCO_gain_control</span><span class="o">=</span><span class="mi">1</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">VCO_gain_control</span><span class="o">=</span><span class="mi">0</span>	
+		<span class="n">Charge_pump_control</span><span class="o">=</span><span class="mi">0</span>
+		
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">VCO_gain_control</span><span class="o">&lt;&lt;</span><span class="mi">23</span><span class="p">)</span><span class="o">+</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">PLL_MULTIPLIER</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">Charge_pump_control</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.setSingleToneMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setSingleToneMode">[docs]</a>	<span class="k">def</span> <span class="nf">setSingleToneMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Enables the Single Tone Mode of the AD9958.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># AFP Select</span>
+		<span class="n">AFP_Select</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">flag</span><span class="o">=</span><span class="n">AFP_Select</span><span class="o">&lt;&lt;</span><span class="mi">22</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span> <span class="c1">#mask for unchanged bits</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		<span class="c1">#set amplitude multiplier</span>
+		<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+		<span class="n">flag</span><span class="o">=</span><span class="n">amplitudeMultiplierEnable</span><span class="o">&lt;&lt;</span><span class="mi">12</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+		
+<div class="viewcode-block" id="AD9958_class.setFreqTuningWord"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setFreqTuningWord">[docs]</a>	<span class="k">def</span> <span class="nf">setFreqTuningWord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Sets the frequency tuning word. Perfroms the frequency register mapping from channelId to the AD9958 register addresses.</span>
+<span class="sd">			</span>
+<span class="sd">			:param channelId: channel ID (0-15)</span>
+<span class="sd">			:type channelId: int</span>
+<span class="sd">			:param tuningWord: frequency tuning word  (minVal=0 maxVal=2^32-1)</span>
+<span class="sd">			:type tuningWord: int</span>
+<span class="sd">			</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">channelId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x04</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x09</span><span class="o">+</span><span class="n">channelId</span>
+		
+		<span class="n">registerValue</span><span class="o">=</span><span class="n">tuningWord</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+<div class="viewcode-block" id="AD9958_class.setPhaseTuningWord"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setPhaseTuningWord">[docs]</a>	<span class="k">def</span> <span class="nf">setPhaseTuningWord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Sets the phase tuning word. Perfroms the phase register mapping from channelId to the AD9958 register addresses.</span>
+<span class="sd">			</span>
+<span class="sd">			:param channelId: channel ID (minVal=0 maxVal=15)</span>
+<span class="sd">			:type channelId: int</span>
+<span class="sd">			:param tuningWord: phase tuning word (minVal=0 maxVal=2^14-1)</span>
+<span class="sd">			:type tuningWord: int</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">channelId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x05</span>
+			<span class="n">registerValue</span><span class="o">=</span><span class="n">tuningWord</span>		
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x09</span><span class="o">+</span><span class="n">channelId</span>
+			<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">tuningWord</span><span class="o">&lt;&lt;</span><span class="mi">18</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+	
+<div class="viewcode-block" id="AD9958_class.setAmplitudeTuningWord"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setAmplitudeTuningWord">[docs]</a>	<span class="k">def</span> <span class="nf">setAmplitudeTuningWord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Sets the amplitude tuning word. Perfroms the amplitude register mapping from channelId to the AD9958 register addresses.</span>
+<span class="sd">			</span>
+<span class="sd">			:param channelId: channel ID (minVal=0 maxVal=15)</span>
+<span class="sd">			:type channelId: int</span>
+<span class="sd">			:param tuningWord: amplitude tuning word (minVal=0 maxVal=2^10-1)</span>
+<span class="sd">			:type tuningWord: int</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">channelId</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+			<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#mask for unchanged bits</span>
+			<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">tuningWord</span>  
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x09</span><span class="o">+</span><span class="n">channelId</span>
+			<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">tuningWord</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span>	</div>
+	
+	
+<div class="viewcode-block" id="AD9958_class.setFreq"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setFreq">[docs]</a>	<span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channelId</span><span class="p">,</span><span class="n">freq</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Sets the frequency for a given channel ID.</span>
+<span class="sd">		</span>
+<span class="sd">		:param channelId: channel ID (minVal=0 maxVal=15)</span>
+<span class="sd">		:type channelId: int</span>
+<span class="sd">		</span>
+<span class="sd">		:param freq: frequency in Hz (minVal=0 maxVal=SYS_CLK*(2^32-1)/2^32= 499999999.8835)</span>
+<span class="sd">		:type freq: float</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">tuningWord</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="n">freq</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setFreqTuningWord</span><span class="p">(</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+<div class="viewcode-block" id="AD9958_class.setPhase"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setPhase">[docs]</a>	<span class="k">def</span> <span class="nf">setPhase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">channelId</span><span class="p">,</span><span class="n">phase</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Sets the phase for a given channel ID .</span>
+<span class="sd">		</span>
+<span class="sd">		:param channelId: channel ID (minVal=0 maxVal=15) </span>
+<span class="sd">		:type channelId: int</span>
+<span class="sd">		:param phase: phase in degrees (minVal=0 maxVal=360*(2^14-1)/2^14=359.9780)</span>
+<span class="sd">		:type phase: float</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">tuningWord</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">phase</span><span class="o">/</span><span class="mf">360.</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setPhaseTuningWord</span><span class="p">(</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.setAmplitude"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setAmplitude">[docs]</a>	<span class="k">def</span> <span class="nf">setAmplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channelId</span><span class="p">,</span><span class="n">amplitude</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Sets the amplitude for a given channel ID.</span>
+<span class="sd">		</span>
+<span class="sd">		:param channelId: channel ID (minVal=0 maxVal=15)</span>
+<span class="sd">		:type channelId: int</span>
+<span class="sd">		</span>
+<span class="sd">		:param amplitude: amplitude (minVal=0 maxVal=1)</span>
+<span class="sd">		:type amplitude: float</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">tuningWord</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">amplitude</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitudeTuningWord</span><span class="p">(</span><span class="n">channelId</span><span class="p">,</span><span class="n">tuningWord</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+			
+<div class="viewcode-block" id="AD9958_class.IO_update"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.IO_update">[docs]</a>	<span class="k">def</span> <span class="nf">IO_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Performs an IO update.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;IO_update </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.setModulationMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setModulationMode">[docs]</a>	<span class="k">def</span> <span class="nf">setModulationMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">modulationTypeSelect</span><span class="p">,</span><span class="n">modulationLevelSelect</span><span class="p">,</span><span class="n">priorityChannel</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Enables the modulation mode. For modulation levels 8 and 16, the PPC bits are set such that the profile PINs are only assigned to the priority channel.</span>
+<span class="sd">			</span>
+<span class="sd">			:param modulationTypeSelect: Type of modulation: &quot;amplitude&quot;, &quot;frequency&quot; or &quot;phase&quot;. </span>
+<span class="sd">			:type modulationTypeSelect: str</span>
+<span class="sd">			:param modulationLevelSelect: Depth of modulation: 2,4,8,16.</span>
+<span class="sd">			:type modulationLevelSelect: int</span>
+<span class="sd">			:param priorityChannel: Channel (0 or 1) for which the modulation is set up in case of modulations levels 8 and 16.</span>
+<span class="sd">			:type priorityChannel: int</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">modulationTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">1</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">elif</span> <span class="n">modulationTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">2</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="n">modulationTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">3</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+		
+		<span class="c1"># Set AFP, linearSweepEnable, amplitudeMultiplierEnable</span>
+		<span class="n">linearSweepEnable</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">AFP</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">linearSweepEnable</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">))</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		
+		<span class="c1">#set amplitude multiplier</span>
+		<span class="k">if</span> <span class="n">modulationLevelSelect</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">elif</span> <span class="n">modulationLevelSelect</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">1</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="n">modulationLevelSelect</span><span class="o">==</span><span class="mi">8</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">2</span>
+			<span class="k">if</span> <span class="n">priorityChannel</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span>
+			<span class="k">elif</span> <span class="n">priorityChannel</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="n">modulationLevelSelect</span><span class="o">==</span><span class="mi">16</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">3</span>
+			<span class="k">if</span> <span class="n">priorityChannel</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span>
+			<span class="k">elif</span> <span class="n">priorityChannel</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+			
+		<span class="n">rampUpRampDown</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x01</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">rampUpRampDown</span><span class="o">&lt;&lt;</span><span class="mi">10</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">10</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">7</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">))</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		
+		
+		
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">amplitudeMultiplierEnable</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+				
+		
+		<span class="k">return</span></div>
+		
+	
+	
+<div class="viewcode-block" id="AD9958_class.setSweepMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setSweepMode">[docs]</a>	<span class="k">def</span> <span class="nf">setSweepMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sweepTypeSelect</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Enables the sweep mode. The optimal RSRR,RDW,FSRR,FDW values are found using :func:`AD9958_class.findOptimalRamp`.</span>
+<span class="sd">			</span>
+<span class="sd">			:param sweepTypeSelect: Type of sweep: &quot;amplitude&quot;, &quot;frequency&quot; or &quot;phase&quot;. </span>
+<span class="sd">			:type sweepTypeSelect: str</span>
+<span class="sd">			:param lowValue: Low value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type lowValue: float</span>
+<span class="sd">			:param highValue: High value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type highValue: float</span>
+<span class="sd">			:param rampUpTime: Ramp up time in s.</span>
+<span class="sd">			:type rampUpTime: float</span>
+<span class="sd">			:param rampDownTime: Ramp down time in s.</span>
+<span class="sd">			:type rampDownTime: float</span>
+<span class="sd">			</span>
+<span class="sd">			.. warning::</span>
+<span class="sd">				The optimal ramp found via :func:`AD9958_class.findOptimalRamp` is protected from a register overflow. However, if **highValue** is too close to its maximum, there might be no suitable ramp up for the chosen parameters. In this case, an error message is raized and RSRR,RDW,FSRR,FDW are set to 0. </span>
+<span class="sd">			&quot;&quot;&quot;</span>
+		<span class="c1">#AFP, linearSweepEnable</span>
+		<span class="k">if</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">2</span>
+		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">3</span>
+		
+		<span class="n">linearSweepEnable</span><span class="o">=</span><span class="mi">1</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">AFP</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">linearSweepEnable</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">))</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+				
+		<span class="c1"># Modulation level,  PPC</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
+		
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x01</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">10</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">7</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">))</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		
+		<span class="c1">#Calulate RSRR,RDW,FSRR,FDW</span>
+		<span class="n">RSRR</span><span class="p">,</span><span class="n">RDW</span><span class="p">,</span><span class="n">FSRR</span><span class="p">,</span><span class="n">FDW</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">findOptimalRamp</span><span class="p">(</span><span class="n">sweepTypeSelect</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">)</span>
+		
+		
+		
+		<span class="n">S0</span><span class="o">=</span><span class="n">lowValue</span>
+		<span class="n">E0</span><span class="o">=</span><span class="n">highValue</span>
+		
+		<span class="c1">#Set S0, E0</span>
+		<span class="k">if</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">0</span>
+		
+			
+		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+			
+		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+		
+			
+		
+		<span class="c1">#set amplitude multiplier</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+		<span class="n">flag</span><span class="o">=</span><span class="n">amplitudeMultiplierEnable</span><span class="o">&lt;&lt;</span><span class="mi">12</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		<span class="c1">#Set RSRR and FSRR</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x07</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">FSRR</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="n">RSRR</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		<span class="c1">#Set RDW</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x08</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="n">RDW</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		<span class="c1">#Set FDW</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x09</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="n">FDW</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+
+		
+<div class="viewcode-block" id="AD9958_class.setDACFullScale"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setDACFullScale">[docs]</a>	<span class="k">def</span> <span class="nf">setDACFullScale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Sets the DAC output amplitude to full scale.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="k">return</span></div>
+
+		
+<div class="viewcode-block" id="AD9958_class.findOptimalRamp"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.findOptimalRamp">[docs]</a>	<span class="k">def</span> <span class="nf">findOptimalRamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rampTypeSelect</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			Finds the optimal values for RSRR,RDW,FSRR,FDW for a given ramp. Each rising (R) or falling (F) ramps  is characterized by a  rising/falling delta word xDW and rising/faling delta time calculated from xSRR.</span>
+<span class="sd">			For a given xSRR the time steps, the total number of initiated time steps and slopes are:</span>
+<span class="sd">			</span>
+<span class="sd">			.. math::</span>
+<span class="sd">				\Delta t &amp;=\mbox{SYNC\_CLK}\cdot xSRR \\\\</span>
+<span class="sd">				N_{time\; steps} &amp;=\mbox{ceil} \Big( \dfrac{rampXTime}{\Delta t} \Big) \\\\</span>
+<span class="sd">				slope &amp;= \dfrac{E0-S0}{rampXTime}</span>
+<span class="sd">				</span>
+<span class="sd">			where SYNC\_CLK=SYS_CLK/4=125MHz and S0 and E0 are the start and end points of the ramp written into the 32 bit registers of the AD9958. The xDW is calculated as follows:</span>
+<span class="sd">			</span>
+<span class="sd">			.. math::</span>
+<span class="sd">				xDW=\mbox{ceil} \Big( \dfrac{E0-S0}{N_{time\; steps}} \Big)</span>
+
+<span class="sd">			The figure of merit :math:`\\xi` evaluates the deviation form the obtained sweep to an ideal linear ramp:</span>
+<span class="sd">			</span>
+<span class="sd">			.. math::</span>
+<span class="sd">				\\xi=\sum_{i=1}^{N_{DAC \; steps}} \int_{(i-1)\cdot \Delta t}^{i\cdot\Delta t}dt( i \cdot xDW -slope\cdot t )^2        +         \int_{N_{DAC \; steps} \cdot \Delta t}^{rampXTime}dt( N_{DAC \; steps} \cdot xDW -slope\cdot t )^2</span>
+<span class="sd">				</span>
+<span class="sd">			where :math:`N_{DAC \; steps}=\mbox{floor} \Big( \dfrac{E0-S0}{xDW} \Big)`</span>
+<span class="sd">			</span>
+<span class="sd">			</span>
+<span class="sd">			</span>
+<span class="sd">			For all xSRR ranging form 1 to 255, the figure of merit is evaluated analytically. The mimum of them is chosen as the optimum ramp parameter.</span>
+<span class="sd">			</span>
+<span class="sd">			</span>
+<span class="sd">			:param rampTypeSelect: Type of ramp: &quot;amplitude&quot;, &quot;frequency&quot; or &quot;phase&quot;. </span>
+<span class="sd">			:type sweepTypeSelect: str</span>
+<span class="sd">			:param lowValue: Low value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type lowValue: float</span>
+<span class="sd">			:param highValue: High value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type highValue: float</span>
+<span class="sd">			:param rampUpTime: Ramp up time in s.</span>
+<span class="sd">			:type rampUpTime: float</span>
+<span class="sd">			:param rampDownTime: Ramp down time in s.</span>
+<span class="sd">			:type rampDownTime: float</span>
+<span class="sd">			</span>
+<span class="sd">			:return: [RSRR,RDW,FSRR,FDW]			</span>
+<span class="sd">			</span>
+<span class="sd">			</span>
+<span class="sd">			.. warning::</span>
+<span class="sd">				The AD9958 register overflows during a rising sweep when :math:`RDW\cdot \Tilde{N}_{DAC \; steps}+S0\geq 2^{32}` where :math:`\Tilde{N}_{DAC \; steps}=\mbox{ceil} \Big( \dfrac{E0-S0}{xDW} \Big)`. </span>
+<span class="sd">				The current implementation of :func:`AD9958_class.findOptimalRamp` excludes solutions leading to a register overflow. In case no alternative solution can be found, an error is raised and [0,0,0,0] is returned. </span>
+<span class="sd">			</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">SYNC_CLK</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">/</span><span class="mf">4.</span>
+		
+		<span class="c1">#RAMP UP</span>
+		<span class="n">RSRRArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		<span class="n">RDWArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		<span class="n">figureOfMeritArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		
+		<span class="k">for</span> <span class="n">RSRR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">255</span><span class="p">):</span>
+			<span class="n">timeStep</span><span class="o">=</span><span class="n">RSRR</span><span class="o">/</span><span class="n">SYNC_CLK</span> <span class="c1">#</span>
+			<span class="n">NTimeSteps</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">rampUpTime</span><span class="o">/</span><span class="n">timeStep</span><span class="p">)</span><span class="c1">#Amount of rising steps</span>
+			<span class="k">if</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">)</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">)</span>
+				<span class="n">RDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+				
+			<span class="k">elif</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">/</span><span class="mi">360</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">/</span><span class="mi">360</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span>
+				<span class="n">RDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+				<span class="n">RDW</span><span class="o">=</span><span class="p">((</span><span class="n">RDW</span><span class="o">&gt;&gt;</span><span class="mi">18</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span>
+				<span class="n">RDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+				<span class="n">RDW</span><span class="o">=</span><span class="p">((</span><span class="n">RDW</span><span class="o">&gt;&gt;</span><span class="mi">22</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">RDW</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+				<span class="n">slope</span><span class="o">=</span><span class="p">(</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">rampUpTime</span><span class="p">)</span>
+				<span class="n">NDACSteps</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">RDW</span><span class="p">)</span>
+				<span class="n">NDACStepsCeil</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">RDW</span><span class="p">)</span>
+				
+				<span class="n">figureOfMerit</span><span class="o">=</span><span class="mi">0</span>
+				<span class="c1">#ramp up figure of merit</span>
+				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span> <span class="o">*</span><span class="n">NDACSteps</span> <span class="o">*</span><span class="n">timeStep</span> <span class="o">*</span><span class="p">(</span><span class="n">RDW</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="p">)</span> <span class="o">-</span> <span class="n">RDW</span> <span class="o">*</span><span class="n">slope</span> <span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="n">timeStep</span> <span class="o">+</span>  <span class="mi">2</span> <span class="o">*</span><span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">timeStep</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span> <span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="p">(</span><span class="n">rampUpTime</span> <span class="o">-</span> <span class="n">NDACSteps</span><span class="o">*</span><span class="n">timeStep</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+				
+				<span class="c1">#Saving RSRR,RDW and figureOfMerit</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">RDW</span><span class="o">*</span><span class="n">NDACStepsCeil</span><span class="o">+</span><span class="n">S0</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">:</span> <span class="c1">#Avoids sweep overflow</span>
+					<span class="n">RDWArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RDWArray</span><span class="p">,[</span><span class="n">RDW</span><span class="p">])</span>
+					<span class="n">RSRRArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RSRRArray</span><span class="p">,[</span><span class="n">RSRR</span><span class="p">])</span>
+					<span class="n">figureOfMeritArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="p">,[</span><span class="n">figureOfMerit</span><span class="p">])</span>
+		
+		<span class="c1">#Finding best figureOfMerit</span>
+		<span class="k">try</span><span class="p">:</span>		
+			<span class="n">minIndex</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">RSRR</span><span class="o">=</span><span class="n">RSRRArray</span><span class="p">[</span><span class="n">minIndex</span><span class="p">]</span>
+			<span class="n">RDW</span><span class="o">=</span><span class="n">RDWArray</span><span class="p">[</span><span class="n">minIndex</span><span class="p">]</span>
+			<span class="nb">print</span> <span class="s2">&quot;Ramp up time: </span><span class="si">%.2e</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">RDW</span><span class="o">*</span><span class="n">RSRR</span><span class="o">/</span><span class="n">SYNC_CLK</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span> <span class="s2">&quot;ERROR: the chosen final point amd ramp up time lead to register overflow for all available time steps (RSRR). Try a slightly smaller final point and/or a longer ramp.&quot;</span>
+			<span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+		
+				
+		<span class="c1">#RAMP DOWN</span>
+		<span class="n">FSRRArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		<span class="n">FDWArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		<span class="n">figureOfMeritArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+		
+		<span class="k">for</span> <span class="n">FSRR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">255</span><span class="p">):</span>
+			<span class="n">timeStep</span><span class="o">=</span><span class="n">FSRR</span><span class="o">/</span><span class="n">SYNC_CLK</span> <span class="c1">#</span>
+			<span class="n">NTimeSteps</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">rampDownTime</span><span class="o">/</span><span class="n">timeStep</span><span class="p">)</span><span class="c1">#Amount of rising steps</span>
+
+			<span class="k">if</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">)</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">SYS_CLK</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">)</span>
+				<span class="n">FDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+			<span class="k">elif</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">/</span><span class="mi">360</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">/</span><span class="mi">360</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span>
+				<span class="n">FDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+				<span class="n">FDW</span><span class="o">=</span><span class="p">((</span><span class="n">FDW</span><span class="o">&gt;&gt;</span><span class="mi">18</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">18</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="n">rampTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+				<span class="n">S0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lowValue</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span>
+				<span class="n">E0</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">highValue</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span>
+				<span class="n">FDW</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">NTimeSteps</span><span class="p">))</span>
+				<span class="n">FDW</span><span class="o">=</span><span class="p">((</span><span class="n">FDW</span><span class="o">&gt;&gt;</span><span class="mi">22</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span>
+			
+			<span class="k">if</span> <span class="n">FDW</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+				<span class="n">slope</span><span class="o">=</span><span class="p">(</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">rampDownTime</span><span class="p">)</span>	
+				<span class="n">NDACSteps</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">FDW</span><span class="p">)</span>
+				<span class="n">figureOfMerit</span><span class="o">=</span><span class="mi">0</span>
+				<span class="c1">#ramp up figure of merit</span>
+				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span> <span class="o">*</span><span class="n">NDACSteps</span> <span class="o">*</span><span class="n">timeStep</span> <span class="o">*</span><span class="p">(</span><span class="n">FDW</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="p">)</span> <span class="o">-</span> <span class="n">FDW</span> <span class="o">*</span><span class="n">slope</span> <span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="n">timeStep</span> <span class="o">+</span>  <span class="mi">2</span> <span class="o">*</span><span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">timeStep</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span> <span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="p">(</span><span class="n">rampDownTime</span> <span class="o">-</span> <span class="n">NDACSteps</span><span class="o">*</span><span class="n">timeStep</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+				
+				<span class="n">FDWArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FDWArray</span><span class="p">,[</span><span class="n">FDW</span><span class="p">])</span>
+				<span class="n">FSRRArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FSRRArray</span><span class="p">,[</span><span class="n">FSRR</span><span class="p">])</span>
+				<span class="n">figureOfMeritArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="p">,[</span><span class="n">figureOfMerit</span><span class="p">])</span>			
+		
+		<span class="c1">#Finding best figureOfMerit</span>
+		<span class="n">minIndex</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">figureOfMeritArray</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">FSRR</span><span class="o">=</span><span class="n">FSRRArray</span><span class="p">[</span><span class="n">minIndex</span><span class="p">]</span>
+		<span class="n">FDW</span><span class="o">=</span><span class="n">FDWArray</span><span class="p">[</span><span class="n">minIndex</span><span class="p">]</span>	
+		<span class="nb">print</span> <span class="s2">&quot;Ramp down time: </span><span class="si">%.2e</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">((</span><span class="n">E0</span><span class="o">-</span><span class="n">S0</span><span class="p">)</span><span class="o">/</span><span class="n">FDW</span><span class="o">*</span><span class="n">FSRR</span><span class="o">/</span><span class="n">SYNC_CLK</span><span class="p">)</span>		
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">RSRR</span><span class="p">,</span><span class="n">RDW</span><span class="p">,</span><span class="n">FSRR</span><span class="p">,</span><span class="n">FDW</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AD9958_class.setTriggerOut"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setTriggerOut">[docs]</a>	<span class="k">def</span> <span class="nf">setTriggerOut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">flag</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets the state of the output trigger pin.</span>
+<span class="sd">		</span>
+<span class="sd">		:param flag: Trigger state.</span>
+<span class="sd">		:type flag: bool</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setTriggerOut &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+	
+<div class="viewcode-block" id="AD9958_class.setProfilePins"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setProfilePins">[docs]</a>	<span class="k">def</span> <span class="nf">setProfilePins</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pin0Flag</span><span class="p">,</span><span class="n">pin1Flag</span><span class="p">,</span><span class="n">pin2Flag</span><span class="p">,</span><span class="n">pin3Flag</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets the profile pins output sates. </span>
+<span class="sd">		</span>
+<span class="sd">		:param pin0Flag: Profile pin 0 state.</span>
+<span class="sd">		:type pin0Flag: bool</span>
+<span class="sd">		:param pin1Flag: Profile pin 1 state.</span>
+<span class="sd">		:type pin1Flag: bool</span>
+<span class="sd">		:param pin2Flag: Profile pin 2 state.</span>
+<span class="sd">		:type pin2Flag: bool</span>
+<span class="sd">		:param pin3Flag: Profile pin 3 state.</span>
+<span class="sd">		:type pin3Flag: bool</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setProfilePins &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin0Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin1Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin2Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin3Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+<div class="viewcode-block" id="AD9958_class.waitTriggerIn"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.waitTriggerIn">[docs]</a>	<span class="k">def</span> <span class="nf">waitTriggerIn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Waits for a logic high on the trigger input port.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;waitTriggerIn</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.delayTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.delayTimer">[docs]</a>	<span class="k">def</span> <span class="nf">delayTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">time</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Holds the execution for the given amount of time. Uses Timer 2 and Timer 3 of the Chipkit Max32 in 32 bit mode.</span>
+<span class="sd">		</span>
+<span class="sd">		:param time: Hold time in seconds (max. 52s)</span>
+<span class="sd">		:type time: float</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">clkCycles</span><span class="o">=</span><span class="n">time</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">CHIPKIT_CLK</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;delayTimer &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">clkCycles</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+<div class="viewcode-block" id="AD9958_class.resetTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.resetTimer">[docs]</a>	<span class="k">def</span> <span class="nf">resetTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Resets the internal timer (Timer 4 and Timer 5 of the Chipkit Max32) used for :func:`AD9958_class.waitForTimer`.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;resetTimer </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.waitForTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.waitForTimer">[docs]</a>	<span class="k">def</span> <span class="nf">waitForTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">time</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Waits until the the internal timer has reached the specified time. Uses Timer 4 and Timer 5 of the Chipkit Max32 in 32 bit mode.</span>
+<span class="sd">		</span>
+<span class="sd">		:param time: Value of the timer (in s) until execution is resumed. </span>
+<span class="sd">		:type time: float</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="n">clkCycles</span><span class="o">=</span><span class="n">time</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">CHIPKIT_CLK</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;waitForTimer &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">clkCycles</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span>	</div>
+		
+<div class="viewcode-block" id="AD9958_class.clearPhaseAccumulator"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.clearPhaseAccumulator">[docs]</a>	<span class="k">def</span> <span class="nf">clearPhaseAccumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Clears the phase accumulator of the AD9958. It enables and disables the autoclear phase accumulator.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">flag</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span>
+		
+		<span class="n">flag</span><span class="o">=</span><span class="mi">0</span><span class="o">&lt;&lt;</span><span class="mi">2</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">return</span></div>
+	
+	
+<div class="viewcode-block" id="AD9958_class.setModulationRegister"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setModulationRegister">[docs]</a>	<span class="k">def</span> <span class="nf">setModulationRegister</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">regChannel0</span><span class="p">,</span><span class="n">regChannel1</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets the active amplitude/frequency/phase register for the ongoing modulation/sweep. Profile pins are set according to the modulation level and priority channel (encoded in PPC). </span>
+<span class="sd">		</span>
+<span class="sd">		:param regChannel0: Active register for channel 0.</span>
+<span class="sd">		:type regChannel0: int</span>
+<span class="sd">		:param regChannel1: Active register for channel 1.</span>
+<span class="sd">		:type regChannel1: int</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+	
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+			<span class="n">P0</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">P1</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">P2</span><span class="o">=</span><span class="n">regChannel0</span>
+			<span class="n">P3</span><span class="o">=</span><span class="n">regChannel1</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+			<span class="n">P0</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+			<span class="n">P1</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+			<span class="n">P2</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+			<span class="n">P3</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">==</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">):</span>
+				<span class="n">P0</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P1</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P2</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P3</span><span class="o">=</span><span class="mi">0</span>
+			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">==</span><span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>	
+				<span class="n">P0</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P1</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P2</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P3</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">==</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">):</span>
+				<span class="n">P0</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">3</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P1</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P2</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P3</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel0</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">==</span><span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>	
+				<span class="n">P0</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">3</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P1</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P2</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>
+				<span class="n">P3</span><span class="o">=</span><span class="p">(</span><span class="n">regChannel1</span><span class="o">&gt;&gt;</span><span class="mi">0</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span>	
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">setProfilePins</span><span class="p">(</span><span class="n">P0</span><span class="p">,</span><span class="n">P1</span><span class="p">,</span><span class="n">P2</span><span class="p">,</span><span class="n">P3</span><span class="p">)</span>
+		
+		<span class="k">return</span></div>
+	
+		
+<div class="viewcode-block" id="AD9958_class.clearStack"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.clearStack">[docs]</a>	<span class="k">def</span> <span class="nf">clearStack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Clears the function stack.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;clearStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+		
+<div class="viewcode-block" id="AD9958_class.runStack"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.runStack">[docs]</a>	<span class="k">def</span> <span class="nf">runStack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Starts the function stack. Flushes the serial intput buffer in order.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;runStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">return</span></div>
+			
+	
+<div class="viewcode-block" id="AD9958_class.checkStackFinihed"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkStackFinihed">[docs]</a>	<span class="k">def</span> <span class="nf">checkStackFinihed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks if the function stack has finished.</span>
+<span class="sd">		</span>
+<span class="sd">		:returns: True/False.</span>
+<span class="sd">	</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;checkStackFinished </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;OK&quot;</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+		
+		
+		
+<div class="viewcode-block" id="AD9958_class.enableAutomaticRURD"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.enableAutomaticRURD">[docs]</a>	<span class="k">def</span> <span class="nf">enableAutomaticRURD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">stepSize</span><span class="p">,</span><span class="n">amplitudeRampRate</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Enables the automatic ramp up/down feature controled by :func:`AD9958_class.setRampPins`.</span>
+<span class="sd">		</span>
+<span class="sd">		The total time elapsed after a full ramp up/down is:</span>
+
+<span class="sd">		.. math::</span>
+<span class="sd">			\dfrac{2^{10}-1}{SYNC\_CLK} \dfrac{amplitudeRampRate}{2^{stepSize}}</span>
+
+<span class="sd">		For SYS_CLK=4xSYNC_CLK=500MHz this reduces to:</span>
+<span class="sd">		</span>
+<span class="sd">		.. math::</span>
+<span class="sd">			8.2\dfrac{amplitudeRampRate}{2^{stepSize}}\;\; us</span>
+<span class="sd">		</span>
+<span class="sd">		:param stepSize: Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}. </span>
+<span class="sd">		:type stepSize: int</span>
+<span class="sd">		:param amplitudeRampRate: DAC step size. Accepted values: 0-255.</span>
+<span class="sd">		:type amplitudeRampRate: int</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">amplitudeRampRate</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">stepSize</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">11</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">255</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">11</span><span class="p">))</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+		
+		
+		<span class="k">return</span> </div>
+		
+<div class="viewcode-block" id="AD9958_class.disableAutomaticRURD"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.disableAutomaticRURD">[docs]</a>	<span class="k">def</span> <span class="nf">disableAutomaticRURD</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Disables the automatic ramp up/down feature controled by :func:`AD9958_class.setRampPins`.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">flag</span><span class="o">=</span><span class="mi">0</span><span class="o">&lt;&lt;</span><span class="mi">11</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">11</span><span class="p">)</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">return</span> </div>
+		
+<div class="viewcode-block" id="AD9958_class.setAutomaticRURDPins"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setAutomaticRURDPins">[docs]</a>	<span class="k">def</span> <span class="nf">setAutomaticRURDPins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ch0Flag</span><span class="p">,</span><span class="n">ch1Flag</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Sets the amplitude to be ramped up or down on channel 0 and channel 1 . </span>
+<span class="sd">		</span>
+<span class="sd">		:param ch0Flag: amplitude ramp flag (True-&gt;ramp up; False-&gt;ramp down)</span>
+<span class="sd">		:type ch0Flag: bool</span>
+<span class="sd">		:param ch1Flag: amplitude ramp flag (True-&gt;ramp up; False-&gt;ramp down)</span>
+<span class="sd">		:type ch1Flag: bool</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setProfilePins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">ch0Flag</span><span class="p">,</span><span class="n">ch1Flag</span><span class="p">)</span>
+		<span class="k">return</span></div></div>
+		
+		
+		
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">AD9958 Python library  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Pau Gomez Kabelka.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+    </div>
+  </body>
+</html>
