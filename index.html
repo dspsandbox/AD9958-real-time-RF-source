@@ -160,7 +160,7 @@ Once the task stack gets started, the saved commands are performed in a sequenti
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>stepSize</strong> (<em>int</em>) – Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}.</li>
-<li><strong>amplitudeRampRate</strong> (<em>int</em>) – DAC step size. Accepted values: 0-255.</li>
+<li><strong>amplitudeRampRate</strong> (<em>int</em>) – DAC step size. Accepted values: 1-255.</li>
 </ul>
 </td>
 </tr>
@@ -291,7 +291,7 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
 <dl class="method">
 <dt id="AD9958.AD9958_class.setEnabledChannels">
 <code class="descname">setEnabledChannels</code><span class="sig-paren">(</span><em>setCh0Enabled</em>, <em>setCh1Enabled</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setEnabledChannels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setEnabledChannels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the active channels for reading/writting the AD9958 registers.</p>
+<dd><p>Sets the enabled channels for the communication (read/write) of the AD9958 registers. The communication will only affect the channel with a logic high value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -306,7 +306,7 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
 </table>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The output power (amplitude) of each channel is not changed. The function <a class="reference internal" href="#AD9958.AD9958_class.setAmplitude" title="AD9958.AD9958_class.setAmplitude"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.setAmplitude()</span></code></a> can be used for this purpose.</p>
+<p class="last">Channels 0x00, 0x01 and 0x02 are shared registers and get programmed regardless of the enabled channels settings.</p>
 </div>
 </dd></dl>
 
@@ -466,14 +466,28 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
 
 <dl class="method">
 <dt id="AD9958.AD9958_class.setSweepMode">
-<code class="descname">setSweepMode</code><span class="sig-paren">(</span><em>sweepTypeSelect</em>, <em>lowValue</em>, <em>highValue</em>, <em>rampUpTime</em>, <em>rampDownTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setSweepMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setSweepMode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enables the sweep mode. The optimal RSRR,RDW,FSRR,FDW values are found using <a class="reference internal" href="#AD9958.AD9958_class.findOptimalRamp" title="AD9958.AD9958_class.findOptimalRamp"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.findOptimalRamp()</span></code></a>.</p>
+<code class="descname">setSweepMode</code><span class="sig-paren">(</span><em>sweepTypeSelect</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setSweepMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setSweepMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the sweep mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sweepTypeSelect</strong> (<em>str</em>) – Type of sweep: “amplitude”, “frequency” or “phase”.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.setSweepParameters">
+<code class="descname">setSweepParameters</code><span class="sig-paren">(</span><em>lowValue</em>, <em>highValue</em>, <em>rampUpTime</em>, <em>rampDownTime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.setSweepParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.setSweepParameters" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>The optimal RSRR,RDW,FSRR,FDW values are found using <a class="reference internal" href="#AD9958.AD9958_class.findOptimalRamp" title="AD9958.AD9958_class.findOptimalRamp"><code class="xref py py-func docutils literal"><span class="pre">AD9958_class.findOptimalRamp()</span></code></a>.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sweepTypeSelect</strong> (<em>str</em>) – Type of sweep: “amplitude”, “frequency” or “phase”.</li>
 <li><strong>lowValue</strong> (<em>float</em>) – Low value in the units of amplitude,frequency or phase.</li>
 <li><strong>highValue</strong> (<em>float</em>) – High value in the units of amplitude,frequency or phase.</li>
 <li><strong>rampUpTime</strong> (<em>float</em>) – Ramp up time in s.</li>

@@ -49,6 +49,32 @@
 <span class="sd">.. module:: AD9958</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">###############################################################################</span>
+<span class="c1"># AD9958 Real time RF source Python library</span>
+<span class="c1">#</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1"># MIT License</span>
+<span class="c1"># Copyright (c) 2018 Pau Gomez Kabelka &lt;paugomezkabelka@gmail.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1">#Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1">#of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1">#in the Software without restriction, including without limitation the rights</span>
+<span class="c1">#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1">#copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1">#furnished to do so, subject to the following conditions:</span>
+<span class="c1">#</span>
+<span class="c1">#The above copyright notice and this permission notice shall be included in all</span>
+<span class="c1">#copies or substantial portions of the Software.</span>
+<span class="c1">#</span>
+<span class="c1">#THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1">#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1">#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1">#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1">#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1">#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE</span>
+<span class="c1">#SOFTWARE.</span>
+<span class="c1">###############################################################################</span>
+
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
 <span class="kn">import</span> <span class="nn">serial</span>
@@ -85,7 +111,13 @@
 	<span class="c1"># Modulation</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
-		
+	
+	<span class="c1">#Sweep </span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">=</span><span class="kc">None</span> 
+	
+	<span class="c1">#Instructions counter</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">=</span><span class="mi">0</span>	
+	
 	<span class="c1">#Initializing register map</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Register map of channel 0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Register map of channel 1</span>
@@ -103,6 +135,8 @@
 <span class="sd">			Resets the AD9958 chip by pulsing the RESET pin.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;reset</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
+
 		<span class="k">return</span></div>
 		
 		
@@ -119,6 +153,7 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 		
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setRegister &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">registerValue</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">doIO_update</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>	
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		
 		<span class="c1">#Individual registers</span>
 		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span> <span class="ow">or</span> <span class="p">(</span><span class="n">registerAddress</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">commonRegisters</span><span class="p">):</span>
@@ -165,7 +200,7 @@
 		
 <div class="viewcode-block" id="AD9958_class.setEnabledChannels"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setEnabledChannels">[docs]</a>	<span class="k">def</span> <span class="nf">setEnabledChannels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">setCh0Enabled</span><span class="p">,</span><span class="n">setCh1Enabled</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Sets the active channels for reading/writting the AD9958 registers.  </span>
+<span class="sd">		Sets the enabled channels for the communication (read/write) of the AD9958 registers. The communication will only affect the channel with a logic high value.</span>
 <span class="sd">			</span>
 <span class="sd">		:param setCh0Enabled: Flag for channel 0.</span>
 <span class="sd">		:type setCh0Enabled: bool</span>
@@ -173,8 +208,7 @@
 <span class="sd">		:type setCh1Enabled: bool</span>
 <span class="sd">		</span>
 <span class="sd">		.. note::</span>
-<span class="sd">		</span>
-<span class="sd">			The output power (amplitude) of each channel is not changed. The function :func:`AD9958_class.setAmplitude` can be used for this purpose.</span>
+<span class="sd">			Channels 0x00, 0x01 and 0x02 are shared registers and get programmed regardless of the enabled channels settings.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ch0Enabled</span><span class="o">=</span><span class="n">setCh0Enabled</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ch1Enabled</span><span class="o">=</span><span class="n">setCh1Enabled</span>
@@ -325,6 +359,7 @@
 		<span class="sd">&quot;&quot;&quot;Performs an IO update.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;IO_update </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 		
 <div class="viewcode-block" id="AD9958_class.setModulationMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setModulationMode">[docs]</a>	<span class="k">def</span> <span class="nf">setModulationMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">modulationTypeSelect</span><span class="p">,</span><span class="n">modulationLevelSelect</span><span class="p">,</span><span class="n">priorityChannel</span><span class="p">):</span>
@@ -398,40 +433,16 @@
 		
 	
 	
-<div class="viewcode-block" id="AD9958_class.setSweepMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setSweepMode">[docs]</a>	<span class="k">def</span> <span class="nf">setSweepMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sweepTypeSelect</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">):</span>
+<div class="viewcode-block" id="AD9958_class.setSweepMode"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setSweepMode">[docs]</a>	<span class="k">def</span> <span class="nf">setSweepMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sweepTypeSelect</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">			Enables the sweep mode. The optimal RSRR,RDW,FSRR,FDW values are found using :func:`AD9958_class.findOptimalRamp`.</span>
+<span class="sd">			Enables the sweep mode.</span>
 <span class="sd">			</span>
 <span class="sd">			:param sweepTypeSelect: Type of sweep: &quot;amplitude&quot;, &quot;frequency&quot; or &quot;phase&quot;. </span>
 <span class="sd">			:type sweepTypeSelect: str</span>
-<span class="sd">			:param lowValue: Low value in the units of amplitude,frequency or phase.</span>
-<span class="sd">			:type lowValue: float</span>
-<span class="sd">			:param highValue: High value in the units of amplitude,frequency or phase.</span>
-<span class="sd">			:type highValue: float</span>
-<span class="sd">			:param rampUpTime: Ramp up time in s.</span>
-<span class="sd">			:type rampUpTime: float</span>
-<span class="sd">			:param rampDownTime: Ramp down time in s.</span>
-<span class="sd">			:type rampDownTime: float</span>
-<span class="sd">			</span>
-<span class="sd">			.. warning::</span>
-<span class="sd">				The optimal ramp found via :func:`AD9958_class.findOptimalRamp` is protected from a register overflow. However, if **highValue** is too close to its maximum, there might be no suitable ramp up for the chosen parameters. In this case, an error message is raized and RSRR,RDW,FSRR,FDW are set to 0. </span>
-<span class="sd">			&quot;&quot;&quot;</span>
-		<span class="c1">#AFP, linearSweepEnable</span>
-		<span class="k">if</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
-			<span class="n">AFP</span><span class="o">=</span><span class="mi">1</span>
-		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
-			<span class="n">AFP</span><span class="o">=</span><span class="mi">2</span>
-		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
-			<span class="n">AFP</span><span class="o">=</span><span class="mi">3</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">#Sweep type</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">=</span><span class="n">sweepTypeSelect</span>			
 		
-		<span class="n">linearSweepEnable</span><span class="o">=</span><span class="mi">1</span>
-		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
-		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">AFP</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">linearSweepEnable</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span>
-		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">))</span>
-		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
-		
-				
 		<span class="c1"># Modulation level,  PPC</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
@@ -443,40 +454,60 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
 		
 		
-		<span class="c1">#Calulate RSRR,RDW,FSRR,FDW</span>
-		<span class="n">RSRR</span><span class="p">,</span><span class="n">RDW</span><span class="p">,</span><span class="n">FSRR</span><span class="p">,</span><span class="n">FDW</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">findOptimalRamp</span><span class="p">(</span><span class="n">sweepTypeSelect</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">)</span>
+		<span class="c1">#AFP, linearSweepEnable</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">2</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="n">AFP</span><span class="o">=</span><span class="mi">3</span>
 		
-		
-		
-		<span class="n">S0</span><span class="o">=</span><span class="n">lowValue</span>
-		<span class="n">E0</span><span class="o">=</span><span class="n">highValue</span>
-		
-		<span class="c1">#Set S0, E0</span>
-		<span class="k">if</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
-			
-			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
-			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">0</span>
-		
-			
-		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
-			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
-			
-		<span class="k">elif</span> <span class="n">sweepTypeSelect</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
-			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
-			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
-		
-			
-		
+		<span class="n">linearSweepEnable</span><span class="o">=</span><span class="mi">1</span>
+		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x03</span>
+		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">AFP</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">linearSweepEnable</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span>
+		<span class="n">mask</span><span class="o">=~</span><span class="p">((</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">22</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">))</span>
+		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+
+
 		<span class="c1">#set amplitude multiplier</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">0</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="n">amplitudeMultiplierEnable</span><span class="o">=</span><span class="mi">1</span>
+			
 		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x06</span>
 		<span class="n">flag</span><span class="o">=</span><span class="n">amplitudeMultiplierEnable</span><span class="o">&lt;&lt;</span><span class="mi">12</span>
 		<span class="n">mask</span><span class="o">=~</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">12</span><span class="p">)</span>
 		<span class="n">registerValue</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="p">[</span><span class="n">registerAddress</span><span class="p">])</span><span class="o">|</span><span class="n">flag</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span></div>
+		
+		
+		
+<div class="viewcode-block" id="AD9958_class.setSweepParameters"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.setSweepParameters">[docs]</a>	<span class="k">def</span> <span class="nf">setSweepParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			 The optimal RSRR,RDW,FSRR,FDW values are found using :func:`AD9958_class.findOptimalRamp`.</span>
+<span class="sd">			</span>
+<span class="sd">			:param lowValue: Low value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type lowValue: float</span>
+<span class="sd">			:param highValue: High value in the units of amplitude,frequency or phase.</span>
+<span class="sd">			:type highValue: float</span>
+<span class="sd">			:param rampUpTime: Ramp up time in s.</span>
+<span class="sd">			:type rampUpTime: float</span>
+<span class="sd">			:param rampDownTime: Ramp down time in s.</span>
+<span class="sd">			:type rampDownTime: float</span>
+<span class="sd">			</span>
+<span class="sd">			.. warning::</span>
+<span class="sd">				The optimal ramp found via :func:`AD9958_class.findOptimalRamp` is protected from a register overflow. However, if **highValue** is too close to its maximum, there might be no suitable ramp up for the chosen parameters. In this case, an error message is raized and RSRR,RDW,FSRR,FDW are set to 0. </span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		
+		
+		
+		<span class="c1">#Calulate RSRR,RDW,FSRR,FDW</span>
+		<span class="n">RSRR</span><span class="p">,</span><span class="n">RDW</span><span class="p">,</span><span class="n">FSRR</span><span class="p">,</span><span class="n">FDW</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">findOptimalRamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="p">,</span><span class="n">lowValue</span><span class="p">,</span><span class="n">highValue</span><span class="p">,</span><span class="n">rampUpTime</span><span class="p">,</span><span class="n">rampDownTime</span><span class="p">)</span>
 		
 		<span class="c1">#Set RSRR and FSRR</span>
 		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x07</span>
@@ -492,6 +523,22 @@
 		<span class="n">registerAddress</span><span class="o">=</span><span class="mh">0x09</span>
 		<span class="n">registerValue</span><span class="o">=</span><span class="n">FDW</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">setRegister</span><span class="p">(</span><span class="n">registerAddress</span><span class="p">,</span><span class="n">registerValue</span><span class="p">)</span>
+		
+		
+		<span class="n">S0</span><span class="o">=</span><span class="n">lowValue</span>
+		<span class="n">E0</span><span class="o">=</span><span class="n">highValue</span>
+		
+		<span class="c1">#Set S0, E0</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;amplitude&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setAmplitude</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;frequency&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweepType</span><span class="o">==</span><span class="s2">&quot;phase&quot;</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">S0</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setPhase</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">E0</span><span class="p">)</span>
+			
 		<span class="k">return</span></div>
 
 		
@@ -657,6 +704,7 @@
 <span class="sd">		:type flag: bool</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setTriggerOut &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 	
 	
@@ -674,6 +722,7 @@
 <span class="sd">		:type pin3Flag: bool</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;setProfilePins &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin0Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin1Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin2Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pin3Flag</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 	
 <div class="viewcode-block" id="AD9958_class.waitTriggerIn"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.waitTriggerIn">[docs]</a>	<span class="k">def</span> <span class="nf">waitTriggerIn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -681,6 +730,7 @@
 <span class="sd">		Waits for a logic high on the trigger input port.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;waitTriggerIn</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 		
 <div class="viewcode-block" id="AD9958_class.delayTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.delayTimer">[docs]</a>	<span class="k">def</span> <span class="nf">delayTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">time</span><span class="p">):</span>
@@ -692,6 +742,7 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="n">clkCycles</span><span class="o">=</span><span class="n">time</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">CHIPKIT_CLK</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;delayTimer &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">clkCycles</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 	
 <div class="viewcode-block" id="AD9958_class.resetTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.resetTimer">[docs]</a>	<span class="k">def</span> <span class="nf">resetTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -699,6 +750,7 @@
 <span class="sd">		Resets the internal timer (Timer 4 and Timer 5 of the Chipkit Max32) used for :func:`AD9958_class.waitForTimer`.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;resetTimer </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span></div>
 		
 <div class="viewcode-block" id="AD9958_class.waitForTimer"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.waitForTimer">[docs]</a>	<span class="k">def</span> <span class="nf">waitForTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">time</span><span class="p">):</span>
@@ -711,6 +763,7 @@
 		
 		<span class="n">clkCycles</span><span class="o">=</span><span class="n">time</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">CHIPKIT_CLK</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;waitForTimer &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">clkCycles</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
 		<span class="k">return</span>	</div>
 		
 <div class="viewcode-block" id="AD9958_class.clearPhaseAccumulator"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.clearPhaseAccumulator">[docs]</a>	<span class="k">def</span> <span class="nf">clearPhaseAccumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">doIO_update</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -784,6 +837,7 @@
 <span class="sd">		Clears the function stack.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;clearStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">=</span><span class="mi">0</span>
 		<span class="k">return</span></div>
 		
 <div class="viewcode-block" id="AD9958_class.runStack"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.runStack">[docs]</a>	<span class="k">def</span> <span class="nf">runStack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -792,6 +846,7 @@
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;runStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total intructions: </span><span class="si">%d</span><span class="s2"> (max 1000) &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="p">)</span>
 		<span class="k">return</span></div>
 			
 	
@@ -826,7 +881,7 @@
 <span class="sd">		</span>
 <span class="sd">		:param stepSize: Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}. </span>
 <span class="sd">		:type stepSize: int</span>
-<span class="sd">		:param amplitudeRampRate: DAC step size. Accepted values: 0-255.</span>
+<span class="sd">		:param amplitudeRampRate: DAC step size. Accepted values: 1-255.</span>
 <span class="sd">		:type amplitudeRampRate: int</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">amplitudeRampRate</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">stepSize</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">11</span><span class="p">)</span>
