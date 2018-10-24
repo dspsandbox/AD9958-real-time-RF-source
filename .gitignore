@@ -1,0 +1,5 @@
+build
+*.pyc
+*.cmd
+conf.py
+index.rst
