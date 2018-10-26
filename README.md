@@ -61,7 +61,7 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 
 
-
-Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/
+##Python API
+Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/. Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958.
 
 
