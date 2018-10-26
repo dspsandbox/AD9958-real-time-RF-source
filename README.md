@@ -1,6 +1,9 @@
 ## Introduction
 This **AD9958 real time RF source** repository consists of set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell at [ICFO](www.ICFO.eu) for RF/uW state preparation and manipulation of a Rb 87 Bose Einstein Condensate.
 
+#### Operating principle
+The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API designed to request tasks from the AD9958 in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into adresses and values of registers on the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcntroller builds up a *function stack* which saves the requested commands/tasks and executes them sequentially on demmand. Note that the sequential execution of the task is entirely performed by the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958. This third and last effective layer corresponds to DDS itself, which changes the features of the generated RF acording to its internal registers set over SPI. 
+
 #### Highlighted capabilities
 * Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
 * 2,4,8,16 bit modulation mode.
@@ -8,6 +11,8 @@ This **AD9958 real time RF source** repository consists of set of Python and C++
 * Triggered execution (<0.1 us time jitter)
 * Progammable internal delay (~62.5ns step size, ~125ns minimum delay time)
 * Up to 1000 programmble instructions.
+
+
 
 
 In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and about on Python API.
@@ -23,7 +28,7 @@ In the following I will give closer details on the hardware needed, internal con
 
 * **Computer** with a Python 2.7 distribution installed (my personal preference is to directly install the appropiate [Anaconda](https://www.anaconda.com/download/) distribution). Please note that the current project was developed under Python 2.7, the compatibility with Python 3 has not been tested yet. In order to programm the chipKIT Max32, the Arduino IDE and an additional board manager have to be installed. The whole procedure is well explained [here](https://chipkit.net/wiki/index.php?title=ChipKIT_core).
 
-* **RF Transformer (optional)**. By default, the two DAC outputs of the AD9958 eval board are decoupled by using [ADTT1-1](https://www.minicircuits.com/WebStore/dashboard.html?model=ADTT1-1) RF transformers, which operate from 0.3-300 MHz. For my application lower RF frequencies were required and I replaced the transformers by two [ADT1-6T+](https://www.minicircuits.com/WebStore/dashboard.html?model=ADT1-6T%2B) with a dynamic range of 0.03-125 MHz.
+* **RF Transformer (optional)**. By default, the two DAC outputs of the AD9958 eval board are decoupled by using [ADTT1-1](https://www.minicircuits.com/WebStore/dashboard.html?model=ADTT1-1) RF transformers, which operate from 0.3-300 MHz. For my application lower RF frequencies were required and I replaced the transformers by two [ADT1-6T+](https://www.minicircuits.com/WebStore/dashboard.html?model=ADT1-6T%2B) (dynamic range of 0.03-125 MHz).
 
 #### Setting up the AD9958 eval board
 Please follow the isntructions in the above mentioned [documentation] for:
@@ -60,8 +65,16 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 \*\*Not connected.
 
+## Setting up the chipKit 32 Max
+The firmware required for the chipKit 32 Max microcntroller can be found in the *DriverChipkit/AD9958Driver* folder. the folder contains the following scripts and libraries:
+* **AD9958Driver.ino** main code running on the ChipKit Max 32. Contains the functions for the interpretation of the serial commands and and for the construction of the *function stack*.
+* **AD9958_definitions.h** Basic deffinitions of functions an types used in *AD9958Driver.ino*.
+
+
 
 ## Python API
-Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/. Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958.
+Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
+
+Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958.
 
 
