@@ -1,8 +1,10 @@
 ## Introduction
 This **AD9958 real time RF source** repository consists of set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell at [ICFO](www.ICFO.eu) for RF/uW state preparation and manipulation of a Rb 87 Bose Einstein Condensate.
 
+Python API documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
+
 #### Operating principle
-The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API designed to request tasks from the AD9958 in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into adresses and values of registers on the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcntroller builds up a *function stack* which saves the requested commands/tasks and executes them sequentially on demmand. Note that the sequential execution of the task is entirely performed by the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958. This third and last effective layer corresponds to DDS itself, which changes the features of the generated RF acording to its internal registers set over SPI. 
+The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API designed to request tasks from the AD9958 in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into adresses and values of registers on the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcntroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demmand. Note that the sequential execution of the task is entirely performed by the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958. This third and last effective layer corresponds to DDS itself, which changes the features of the generated RF acording to its internal registers set over SPI. 
 
 #### Highlighted capabilities
 * Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
@@ -65,9 +67,15 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 \*\*Not connected.
 
+#### Triggers
+Two *triggers* have been implemented onto the chipKit Max32:
+* **Trigger in**. The execution of the *functions stack* can be held until a rising edge is detected on the corresponding PIN 18. Please make sure to adjust the voltage level of your trigger input to 3.3V.
+
+* **Trigger out**. Used for monitoring purposes (trigerring adquisition of scopes) or possible external RF switches.
+
 ## Setting up the chipKit Max32
 The firmware required for the chipKit Max32 microcontroller can be found in the *DriverChipkit/AD9958Driver* folder:
-* **AD9958Driver.ino** -> Main code running on the ChipKit Max32. Contains the functions for the construction and execution of the *function stack*.
+* **AD9958Driver.ino** -> Main code running on the ChipKit Max32. Contains the functions for the construction and execution of the *functions stack*.
 * **AD9958_definitions.h** -> Basic definitions of functions an types used in *AD9958Driver.ino*.
 * **SPI_simple library** -> Basic library for fast execution of SPI commands (avoids unused overhead).
 * **SerialCommand library** -> Serial command interpreter. Developed by S. Rado and S. Cogswell. 
@@ -78,6 +86,8 @@ For setting up the chipKit Max32 please compile and upload the *AD9958Driver.ino
 ## Python API
 The Python APi is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available under https://gkpau.github.io/AD9958-real-time-RF-source/.
 
-Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958. 
+Please refer to the provided **Examples** for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use from inside the *Examples* folder.
+
+
 
 
