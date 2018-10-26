@@ -1,5 +1,14 @@
 ## Introduction
-This **AD9958 real time RF source** is a package of Python and C++ libraries for real-time control of a  AD9958 direct digital synthesizer  (DDS). These sythesizer has been implemented in the group of Prof. Morgan Mitchell at [ICFO](www.ICFO.eu) for RF and uW state preparation and control of a Rb 87 BEC.
+This **AD9958 real time RF source** repository consists of set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell at [ICFO](www.ICFO.eu) for RF/uW state preparation and manipulation of a Rb 87 Bose Einstein Condensate.
+
+#### Highlighted capabilities
+* Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
+* 2,4,8,16 bit modulation mode
+* Sweep mode with automatic ramp optimization
+
+* Up to 1000 programabel instructions
+
+
 
 In the following I will give closer details on the hardware needed, programming of the Chikit Max 32 microcontroller, internal connection and about on Python API.
 
@@ -15,7 +24,6 @@ In the following I will give closer details on the hardware needed, programming 
 * **Computer** with a Python 2.7 distribution installed (my personal preference is to directly install the appropiate [Anaconda](https://www.anaconda.com/download/) distribution). Please note that the current project was developed under Python 2.7, the extension to Python 3 has not been tested yet. In order to programm the chipKIT Max32, the Arduino IDE and an additional board manager have to be installed. The whole procedure is well explained [here](https://chipkit.net/wiki/index.php?title=ChipKIT_core).
 
 
-#### Connections
 
 
 
