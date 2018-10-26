@@ -18,9 +18,9 @@ The operation of this real-time RF source can be understood in 3 effective layer
 In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and about on Python API.
 
 ## Hardware
-* **AD9958 eval board** Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
+* **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
 
-* **chipKIT Max32** PIC32 board with a 80MHz on board clock. This microcontroller recieves the requested RF setting over its serial port and sets the corresponding register on the AD9958 via an SPI bus. For detailed information please refer to the [chipKIT Max 32 reference manual](https://reference.digilentinc.com/chipkit_max32/refmanual),  the [PIC32MX5XX/6XX/7XX data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/60001156J.pdf) and the more complete [PIC32MX Familiy Reference Manual](http://hades.mech.northwestern.edu/images/2/21/61132B_PIC32ReferenceManual.pdf).
+* **chipKIT Max32**. PIC32 board with a 80MHz on board clock. This microcontroller recieves the requested RF setting over its serial port and sets the corresponding register on the AD9958 via an SPI bus. For detailed information please refer to the [chipKIT Max 32 reference manual](https://reference.digilentinc.com/chipkit_max32/refmanual),  the [PIC32MX5XX/6XX/7XX data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/60001156J.pdf) and the more complete [PIC32MX Familiy Reference Manual](http://hades.mech.northwestern.edu/images/2/21/61132B_PIC32ReferenceManual.pdf).
 
 * **Reference RF clock** for operating the DDS. In order to achieve the maximum sampling rate of the AD9958, a minimum clock frequency of 25 MHz is required. Please refer to the  AD9958 eval board documentation for the max/min ratings in terms of power and frequency.
 
@@ -36,13 +36,13 @@ Please follow the isntructions in the above mentioned [documentation] for:
 * Setting the **jumper** for *External REF_CLK*.
 * Proving the 1.8V and 3.3V bias voltages on the required connectors.
 
-#### Connections between AD9958 eval board chipKit Max 32 
+#### Connections between AD9958 eval board chipKit Max32 
 In the following table the wiring between the microcontroller and the Manual I/0 Control Header of the AD9958 eval board are described. Please note that although the Manual I/O Control Headers have two row of pins available only the lower one is connected to the AD9958.
 
 
 
 
-|AD9958 eval header |Chipkit Max 32 Pin |Description       |
+|AD9958 eval header |Chipkit Max32 Pin |Description       |
 | ------------- | ------------- | ------------- |
 | P0 | 30 |Profile pin 0|
 | P1 | 31 |Profile pin 1|
@@ -65,17 +65,19 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 \*\*Not connected.
 
-## Setting up the chipKit 32 Max
-The firmware required for the chipKit 32 Max microcntroller can be found in the *DriverChipkit/AD9958Driver* folder. the folder contains the following scripts and libraries:
-* **AD9958Driver.ino** Main code running on the ChipKit Max 32. Contains the functions for the construction and execution of the *function stack*.
-* **AD9958_definitions.h** Basic definitions of functions an types used in *AD9958Driver.ino*.
-* **SPI_simple library** Basic library for fast execution of SPI commands (avoids unused overhead).
-* **SerialCommand library** Serial command interpreter. Developed by S. Rado and S. Cogswell. 
+## Setting up the chipKit Max32
+The firmware required for the chipKit Max32 microcontroller can be found in the *DriverChipkit/AD9958Driver* folder:
+* **AD9958Driver.ino** -> Main code running on the ChipKit Max32. Contains the functions for the construction and execution of the *function stack*.
+* **AD9958_definitions.h** -> Basic definitions of functions an types used in *AD9958Driver.ino*.
+* **SPI_simple library** -> Basic library for fast execution of SPI commands (avoids unused overhead).
+* **SerialCommand library** -> Serial command interpreter. Developed by S. Rado and S. Cogswell. 
+
+For setting up the chipKit Max32 please compile and upload the *AD9958Driver.ino* file. Make shure you have installed the IDE and the additional board manager (explained above). 
 
 
 ## Python API
-Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
+The Python APi is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available under https://gkpau.github.io/AD9958-real-time-RF-source/.
 
-Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958.
+Please refer to the provided Examples for a detailed implementation of the different functionalities of the AD9958. 
 
 
