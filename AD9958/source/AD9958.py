@@ -693,7 +693,7 @@ class AD9958_class:
 	
 	def waitTriggerIn(self):
 		"""
-		Waits for a logic high on the trigger input port.
+		Waits for a rising edge on the trigger input port.
 		"""
 		self.ser.write("waitTriggerIn\n")
 		self.instructionCounter+=1
@@ -817,7 +817,7 @@ class AD9958_class:
 
 	def checkLenRequest(self):
 		"""
-		Returns the number of requested instructions to the function stack. 
+		Returns the number of requested function stack instructions. 
 		
 		:returns: Message of type *Requested instructions: X*.
 		"""
