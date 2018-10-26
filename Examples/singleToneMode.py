@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------
 # Hardware parameters:
 # 	* ref_clk= 25 MHz
-#	* PLL_multiplier=20 (leads to an effective sampling rate of 400MHz)  
+#	* PLL_multiplier=20 (SYS_CLK=500MHz)
 # 	* chipkit_clk=80 MHz (onboard clock of the Chipkit Max 32) 
 #-----------------------------------------------------------------------------
 # MIT License
@@ -20,21 +20,33 @@ sys.path.append('..') #Makes AD9958 libray (sitting inside the parent folder) av
 import AD9958	
 
 	
+###################################
+# Setting up serial communication
+###################################
+
 RF_COM_PORT="COM7"
 
+try:
+	serRF   #Check if serial port is defined (if not this line raises a NameError)
+except NameError:  
+	serRF=serial.Serial(RF_COM_PORT, 9600, timeout=0.2)
+	print "Starting RF serial port."
+	time.sleep(5) #Waiting for microcontroller to start
 
-serRF=serial.Serial(RF_COM_PORT, 9600, timeout=0.2)
-print "Starting RF serial port."
-time.sleep(5) #Waiting for microcontroller to start
 
-print "Programming sequence."
+##################################################
+#Initialization of AD9958 object & function stack
+##################################################
+print "Initialize AD9958 object."
 RF=AD9958.AD9958_class(ser=serRF,ref_clk=25e6,PLL_multiplier=20,chipkit_clk=80e6)
 RF.clearStack()
+
 
 
 ###################################
 # Start sequence (function stack)
 ###################################
+print "Programming sequence."
 RF.reset()
 RF.resetTimer()
 RF.configureSysClock()
@@ -66,10 +78,10 @@ RF.clearPhaseAccumulator()
 ###################################
 # End sequence (function stack)
 ###################################
-
+print RF.checkLenRequest()
+print RF.checkLenStack()
 RF.runStack()
 
-serRF.close()
 
 
 

@@ -79,6 +79,8 @@ void resetTimer_ConstructFS();
 void waitForTimer_ConstructFS();
 void clearStack();
 void runStack();
+void checkStackFinished();
+void checkLenStack();
 
 /**************************************************************************
 Functions inside function stack

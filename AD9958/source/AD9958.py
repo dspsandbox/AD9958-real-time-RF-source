@@ -60,8 +60,22 @@ class AD9958_class:
 
 	# Starting communication
 		self.ser=ser
-		self.ser.flush()
-
+		forceRestartFlag=False
+		if not(self.ser.isOpen()):
+			forceRestartFlag=True
+			print "Serial port closed.  Requesting restart."
+		else: 
+			if not(self.checkStackFinished()):
+				forceRestartFlag=True
+				print "Function stack not finished. Requesting restart."
+		
+		if forceRestartFlag:
+			self.ser.close()
+			self.ser.open()
+			print "Restarting serial port."
+			time.sleep(5) #Waiting for microcontroller to start
+		print "Serial port OK."
+	
 	# Modulation
 		self.modulationLevel=0
 		self.PPC=0
@@ -78,12 +92,10 @@ class AD9958_class:
 		self.registerMap=np.zeros(25,dtype=np.uint32) #Current register map
 		self.commonRegisters=[0x00,0x01,0x02] #Registeres shared between channel 0 and channel 1
 		
-		
-		
-		
-###############################################################################################################
-# Functions oustide stack (no precise timing)
-###############################################################################################################
+	
+	
+
+
 	def reset(self):
 		"""
 			Resets the AD9958 chip by pulsing the RESET pin.
@@ -156,9 +168,9 @@ class AD9958_class:
 		"""
 		Sets the enabled channels for the communication (read/write) of the AD9958 registers. The communication will only affect the channel with a logic high value.
 			
-		:param setCh0Enabled: Flag for channel 0.
+		:param setCh0Enabled: Flag for channel 0 (True-> comm. enabled ; False-> comm. disabled).
 		:type setCh0Enabled: bool
-		:param setCh1Enabled: Flag for channel 1.
+		:param setCh1Enabled: Flag for channel 1 (True-> comm. enabled ; False-> comm. disabled).
 		:type setCh1Enabled: bool
 		
 		.. note::
@@ -590,7 +602,7 @@ class AD9958_class:
 				figureOfMerit+=1/6 *NDACSteps *timeStep *(RDW**2* (1 + NDACSteps)* (1 + 2 *NDACSteps) - RDW *slope *(1 + NDACSteps) *(-1 + 4* NDACSteps)* timeStep +  2 *slope**2 *NDACSteps**2 *timeStep**2)
 				figureOfMerit+=1/3* slope**2 *(rampUpTime - NDACSteps*timeStep)**3
 				
-				#Saving RSRR,RDW and figureOfMerit
+				# Saving RSRR,RDW and figureOfMerit
 				if (RDW*NDACStepsCeil+S0)<2**32: #Avoids sweep overflow
 					RDWArray=np.append(RDWArray,[RDW])
 					RSRRArray=np.append(RSRRArray,[RSRR])
@@ -796,23 +808,47 @@ class AD9958_class:
 		
 	def runStack(self):
 		"""
-		Starts the function stack. Flushes the serial intput buffer in order.
+		Starts the function stack. 
 		"""
-		self.ser.flush()
 		self.ser.write("runStack \n")
-		print("Total intructions: %d (max 1000) "%self.instructionCounter)
+		
 		return
 			
-	
-	def checkStackFinihed(self):
+
+	def checkLenRequest(self):
 		"""
-		Checks if the function stack has finished.
+		Returns the number of requested instructions to the function stack. 
+		
+		:returns: Message of type *Requested instructions: X*.
+		"""
+	
+		return "Requested instructions: %d"%self.instructionCounter
+
+			
+			
+	def checkLenStack(self):
+		"""
+		Returns the current and maximum number of programmed instructions on the function stack. 
+		
+		:returns: Message of type *Programmed instructions: X (max len Y)*.
+		"""
+		
+		self.ser.write("checkLenStack \n")
+		txtStr=self.ser.readline()
+		return txtStr[:-1] #returns all execpt the linebreak
+	
+		
+
+			
+	def checkStackFinished(self):
+		"""
+		Checks if the function stack execution is finished. Returns True if the funtion stack is empty or under consytruction. Return False if the function stack is still in execution (after calling runStack()).
 		
 		:returns: True/False.
 	
 		"""
 		self.ser.write("checkStackFinished \n")
-		if self.ser.readline()[:2]=="OK":
+		if self.ser.readline()=="OK\n":
 			return True
 		else:
 			return False
@@ -833,9 +869,9 @@ class AD9958_class:
 		.. math::
 			8.2\dfrac{amplitudeRampRate}{2^{stepSize}}\;\; us
 		
-		:param stepSize: Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}. 
+		:param stepSize: DAC step size selector. Accepted values: {0,1,2,3}. 
 		:type stepSize: int
-		:param amplitudeRampRate: DAC step size. Accepted values: 1-255.
+		:param amplitudeRampRate: Prescaler for the internal counter. Accepted values: 1-255.
 		:type amplitudeRampRate: int
 		"""
 		flag=(amplitudeRampRate<<16)+(stepSize<<14)+(3<<11)

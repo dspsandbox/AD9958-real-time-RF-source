@@ -29,6 +29,8 @@ SOFTWARE.
 #include "SPI_simple.h"
 #include "AD9958_definitions.h"
 #include "SerialCommand.h"
+#define LEN_FUNCTIONSTACK 1000
+#define LEN_PARAM 5
 
 /****************************************************************************
 GENERAL VARIABLES
@@ -39,8 +41,8 @@ unsigned int regValue;
 SerialCommand sCmd; 
 
 typedef void (*generalFunction)(uint32_t* ); //General function type that accepts an uint32_t array as input param
-generalFunction functionStack [1000];
-uint32_t parameterArray[1000][5];
+generalFunction functionStack [LEN_FUNCTIONSTACK];
+uint32_t parameterArray[LEN_FUNCTIONSTACK][LEN_PARAM];
 int functionIndex=0;
 
 int triggerValue=0;
@@ -101,6 +103,7 @@ sCmd.addCommand("waitForTimer",waitForTimer_ConstructFS);
 sCmd.addCommand("clearStack",clearStack);
 sCmd.addCommand("runStack",runStack);
 sCmd.addCommand("checkStackFinished",checkStackFinished);
+sCmd.addCommand("checkLenStack",checkLenStack);
 }
 
 
@@ -640,24 +643,29 @@ void clearStack(){
 }
 
 void runStack(){
-	noInterrupts();
+	noInterrupts(); //Reliable execution/timing
 	TMR4=0;
 	for(int j=0; j<functionIndex;j++){
 		functionStack[j](parameterArray[j]);
 		
 	}
-	
 	interrupts();
-	Serial.println("OK");
+
 	return;
 }
 
 
 
 void checkStackFinished(){
-  Serial.println("OK");
+  Serial.print("OK\n");
 }
 
+
+
+
+void checkLenStack(){
+	Serial.print("Programmed instructions: "+String(functionIndex)+" (max "+String(LEN_FUNCTIONSTACK)+")\n");
+}
 
 /**************************************************************************
 Functions inside function stack
