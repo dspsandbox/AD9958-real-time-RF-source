@@ -17,7 +17,7 @@ The operation of this real-time RF source can be understood in 3 effective layer
 
 
 
-In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and the Python API.
+In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 and the Python API.
 
 ## Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
