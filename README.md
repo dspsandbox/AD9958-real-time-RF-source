@@ -1,23 +1,23 @@
 ## Introduction
-This **AD9958 real time RF source** repository consists of set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell at [ICFO](www.ICFO.eu) for RF/uW state preparation and manipulation of a Rb 87 Bose Einstein Condensate.
+This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/uW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
 
 Python API documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
 
 #### Operating principle
-The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API designed to request tasks from the AD9958 in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into adresses and values of registers on the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcntroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demmand. Note that the sequential execution of the task is entirely performed by the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958. This third and last effective layer corresponds to DDS itself, which changes the features of the generated RF acording to its internal registers set over SPI. 
+The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API, designed to send commands to you RF synthesizer in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into register adresses and register values of the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcontroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demand. Note that the sequential execution of the commands is entirely performed on the side of the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958, setting its internal registers. The AD9958 itself is the third effective layer, which generates the RF signal according to its internal registers and profile pins.
 
 #### Highlighted capabilities
 * Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
 * 2,4,8,16 bit modulation mode.
 * Sweep mode with automatic ramp optimization.
-* Triggered execution (<0.1 us time jitter)
-* Progammable internal delay (~62.5ns step size, ~125ns minimum delay time)
+* Triggered execution (<0.1 us time jitter).
+* Progammable internal delay (~62.5ns step size, ~125ns minimum delay time).
 * Up to 1000 programmble instructions.
 
 
 
 
-In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and about on Python API.
+In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and the Python API.
 
 ## Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
