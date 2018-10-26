@@ -1,10 +1,10 @@
 ## Introduction
-This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of a AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/uW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
+This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of an AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/uW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
 
 Python API documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
 
 #### Operating principle
-The operation of this real-time RF source can be understood in 3 effective layers. The first one is a Python API, designed to send commands to you RF synthesizer in a coprehensive and user-friendly way. Behind the scenes, this layer converts the commands into register adresses and register values of the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcontroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demand. Note that the sequential execution of the commands is entirely performed on the side of the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958, setting its internal registers. The AD9958 itself is the third effective layer, which generates the RF signal according to its internal registers and profile pins.
+The operation of this real-time RF source can be understood in terms of 3 effective layers. The first one is a Python API, designed to send commands to the RF synthesizer in a comprehensive and user-friendly way. Behind the scenes, this layer converts the commands into register adresses and register values of the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcontroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demand. Note that the sequential execution of the commands is entirely performed on the side of the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958, setting its internal registers. The AD9958 itself is the third effective layer, which generates the RF signal according to its internal registers and profile pins.
 
 #### Highlighted capabilities
 * Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
@@ -22,7 +22,7 @@ In the following sections I give closer details on the hardware needed, internal
 ## Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [AD9958 evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
 
-* **chipKIT Max32**. PIC32 development board with a 80MHz on board clock. This microcontroller recieves the requested RF setting over its serial port and sets the corresponding register on the AD9958 via an SPI bus. For detailed information please refer to the [chipKIT Max 32 reference manual](https://reference.digilentinc.com/chipkit_max32/refmanual),  the [PIC32MX5XX/6XX/7XX data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/60001156J.pdf) and the more complete [PIC32MX Familiy Reference Manual](http://hades.mech.northwestern.edu/images/2/21/61132B_PIC32ReferenceManual.pdf).
+* **chipKIT Max32**. PIC32 development board with a 80MHz on board clock. This microcontroller recieves the requested RF setting over its serial port and sets the corresponding registers on the AD9958 via an SPI bus. For detailed information please refer to the [chipKIT Max 32 reference manual](https://reference.digilentinc.com/chipkit_max32/refmanual),  the [PIC32MX5XX/6XX/7XX data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/60001156J.pdf) and the more complete [PIC32MX Familiy Reference Manual](http://hades.mech.northwestern.edu/images/2/21/61132B_PIC32ReferenceManual.pdf).
 
 * **Reference RF clock** for operating the DDS. In order to achieve the maximum sampling rate of the AD9958 a minimum clock frequency of 25 MHz is required. Please refer to the  AD9958 eval board documentation for the max/min ratings in terms of power and frequency.
 
@@ -68,7 +68,7 @@ In the following table the wiring between the microcontroller and the Manual I/0
 \*\*Not connected.
 
 #### Triggers
-Two *triggers* have been implemented onto the chipKit Max32:
+Two triggers have been implemented onto the chipKit Max32:
 * **Trigger in**. The execution of the *functions stack* can be held until a rising edge is detected on the corresponding PIN 18. Please make sure to adjust the voltage level of your trigger input to 3.3V.
 
 * **Trigger out**. Used for monitoring purposes (e.g. triggering the adquisition of your oscilloscope) or possible external RF switches.
@@ -76,11 +76,11 @@ Two *triggers* have been implemented onto the chipKit Max32:
 ## Setting up the chipKit Max32
 The firmware required for the chipKit Max32 microcontroller can be found in the *DriverChipkit/AD9958Driver* folder:
 * **AD9958Driver.ino** -> Main code running on the ChipKit Max32. Contains the functions for the construction and execution of the *functions stack*.
-* **AD9958_definitions.h** -> Basic definitions of functions an types used in *AD9958Driver.ino*.
+* **AD9958_definitions.h** -> Definitions of functions an types used in *AD9958Driver.ino*.
 * **SPI_simple library** -> Basic library for fast execution of SPI commands (avoids unused overhead).
 * **SerialCommand library** -> Serial command interpreter. Developed by S. Rado and S. Cogswell. 
 
-For setting up the chipKit Max32 compile and upload the *AD9958Driver.ino* file. Make shure you have installed the IDE and the additional board manager (explained above). 
+For setting up the chipKit Max32 make shure you have installed the IDE and the additional board manager (explained above). After, compile and upload the *AD9958Driver.ino* file.
 
 
 ## Python API
