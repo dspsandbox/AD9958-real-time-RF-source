@@ -740,7 +740,7 @@
 	
 <div class="viewcode-block" id="AD9958_class.waitTriggerIn"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.waitTriggerIn">[docs]</a>	<span class="k">def</span> <span class="nf">waitTriggerIn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Waits for a logic high on the trigger input port.</span>
+<span class="sd">		Waits for a rising edge on the trigger input port.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;waitTriggerIn</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="o">+=</span><span class="mi">1</span>
@@ -864,7 +864,7 @@
 
 <div class="viewcode-block" id="AD9958_class.checkLenRequest"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkLenRequest">[docs]</a>	<span class="k">def</span> <span class="nf">checkLenRequest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Returns the number of requested instructions to the function stack. </span>
+<span class="sd">		Returns the number of requested function stack instructions. </span>
 <span class="sd">		</span>
 <span class="sd">		:returns: Message of type *Requested instructions: X*.</span>
 <span class="sd">		&quot;&quot;&quot;</span>
