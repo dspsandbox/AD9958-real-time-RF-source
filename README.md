@@ -29,14 +29,17 @@ Please follow the isntructions in the above mentioned [documentation] for:
 * Setting the **jumper** for *External REF_CLK*.
 * Proving the 1.8V and 3.3V bias voltages on the required connectors.
 
-#### Connections between Chipkit Max 32 AD9958 eval board
+#### Connections between AD9958 eval board chipKit Max 32 
 In the following table the wiring between the microcontroller and the Manual I/0 Control Header of the AD9958 eval board are described. Please note that although the Manual I/O Control Headers have two row of pins available only the lower one is connected to the AD9958.
 
 
 
 
-| Chipkit Max 32 Pin | AD9958 eval header | Description|
-| ------------- | ------------- |-------------|
+|**AD9958 eval header**  |**Chipkit Max 32 Pin**  |**Description**       |
+| P0 | ------------------ |------------------|
+| ------------------ | ------------------ |------------------|
+
+
 
 
 Documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/
