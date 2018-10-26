@@ -12,7 +12,7 @@ In the following I will give closer details on the hardware needed, programming 
 
 * **Linear volatge regulators** for supplying the 3.3V and 1.8V required by the Ad9958 eval board. A good example of a LM317T variable voltage regulator diagram can be found [here](https://www.electronics-tutorials.ws/blog/variable-voltage-power-supply.html).
 
-* **Computer** with a Python 2.7 distribution installed (my personal preference is to directly install the appropiate [Anaconda](https://www.anaconda.com/download/) distribution). Please note that the current project was developed under Python 2.7, the extension to Python 3 has not been tested yet. In order to programm the chipKIT Max32, the Arduino IDE and an additional board manager have to be installed. The whole procedure is well explained [https://chipkit.net/wiki/index.php?title=ChipKIT_core]().
+* **Computer** with a Python 2.7 distribution installed (my personal preference is to directly install the appropiate [Anaconda](https://www.anaconda.com/download/) distribution). Please note that the current project was developed under Python 2.7, the extension to Python 3 has not been tested yet. In order to programm the chipKIT Max32, the Arduino IDE and an additional board manager have to be installed. The whole procedure is well explained [here](https://chipkit.net/wiki/index.php?title=ChipKIT_core).
 
 
 #### Connections
