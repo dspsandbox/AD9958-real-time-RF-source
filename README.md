@@ -35,9 +35,29 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 
 
-|**AD9958 eval header**  |**Chipkit Max 32 Pin**  |**Description**       |
-| P0 | ------------------ |------------------|
-| ------------------ | ------------------ |------------------|
+|AD9958 eval header |Chipkit Max 32 Pin |Description       |
+| ------------- | ------------- | ------------- |
+| P0 | 30 |Profile pin 0|
+| P1 | 31 |Profile pin 1|
+| P2 | 32 |Profile pin 2|
+| P3 | 33 |Profile pin 3|
+| IO_UPDATE | 34 |IO Update|
+| CSB | 35 |Chip select (SPI) |
+| SCLK | 52 |Serial clock (SPI)|
+| RESET | 36 |Reset|
+| PWR_DWN | 37 |Power down|
+| SDIO_3\* | 38 |Sync I/O |
+| SDIO_2\* | 50 | MISO (SPI) |
+| SDIO_1\* | 39 | Not used |
+| SDIO_0\* | 39 | MOSI (SPI) |
+| NC\*\* | 18 | Trigger in |
+| NC \*\* | 19 |Trigger out |
+
+
+
+\* The current implementation uses the *Single-Bit Serial 3-Wire mode* of the AD9958.
+
+\*\*Not connected.
 
 
 
