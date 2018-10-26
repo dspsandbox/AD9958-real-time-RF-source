@@ -67,9 +67,10 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 ## Setting up the chipKit 32 Max
 The firmware required for the chipKit 32 Max microcntroller can be found in the *DriverChipkit/AD9958Driver* folder. the folder contains the following scripts and libraries:
-* **AD9958Driver.ino** main code running on the ChipKit Max 32. Contains the functions for the interpretation of the serial commands and and for the construction of the *function stack*.
-* **AD9958_definitions.h** Basic deffinitions of functions an types used in *AD9958Driver.ino*.
-
+* **AD9958Driver.ino** Main code running on the ChipKit Max 32. Contains the functions for the construction and execution of the *function stack*.
+* **AD9958_definitions.h** Basic definitions of functions an types used in *AD9958Driver.ino*.
+* **SPI_simple library** Basic library for fast execution of SPI commands (avoids unused overhead).
+* **SerialCommand library** Serial command interpreter. Developed by S. Rado and S. Cogswell. 
 
 
 ## Python API
