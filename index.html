@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>AD9958 Python library’s documentation! &#8212; AD9958 Python library  documentation</title>
+    <title>AD9958 real time RF source &#8212; AD9958 Python library  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -43,28 +43,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="ad9958-python-library-s-documentation">
-<h1>AD9958 Python library’s documentation!<a class="headerlink" href="#ad9958-python-library-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="ad9958-real-time-rf-source">
+<h1>AD9958 real time RF source<a class="headerlink" href="#ad9958-real-time-rf-source" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <div class="section" id="introduction">
 <h2>INTRODUCTION<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>The AD9958 Python library provides a configurable and harware timed interface for a AD9948 DDS. The defined commands are sent over the provided serial port to the chipKit max32 microcontroller and loaded onto the onboard task stack.
-Once the task stack gets started, the saved commands are performed in a sequential.</p>
-<dl class="docutils">
-<dt>Some highlighted capabilities are:</dt>
-<dd><ul class="first last simple">
-<li><strong>Single tone mode</strong>.</li>
-<li><strong>Modulation mode</strong>: 2,4,8, or 16 bit for amplitude, frequency and phase.</li>
-<li><strong>Sweep mode</strong> for amplitude, frequency and phase.</li>
-<li>Simplified setting of <strong>amplitude, frequency and phase registers</strong>.</li>
-<li>Set <strong>profile PINs on AD9958</strong>.</li>
-<li><strong>Internal timer</strong> (~62.5ns step size, ~125ns minimum delay time).</li>
-<li>Wait for <strong>trigger in</strong>.</li>
-<li>Set <strong>trigger out</strong>.</li>
-</ul>
-</dd>
-</dl>
+Once the task stack gets started, the saved commands are issued sequentially and the AD9958 gets programed over SPI in real time. Please check the provided examples for more details on the different operational modes.</p>
 </div>
 <div class="section" id="module-AD9958">
 <span id="code"></span><h2>CODE<a class="headerlink" href="#module-AD9958" title="Permalink to this headline">¶</a></h2>
@@ -93,9 +79,37 @@ Once the task stack gets started, the saved commands are performed in a sequenti
 </dd></dl>
 
 <dl class="method">
-<dt id="AD9958.AD9958_class.checkStackFinihed">
-<code class="descname">checkStackFinihed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.checkStackFinihed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.checkStackFinihed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the function stack has finished.</p>
+<dt id="AD9958.AD9958_class.checkLenRequest">
+<code class="descname">checkLenRequest</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.checkLenRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.checkLenRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of requested instructions to the function stack.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Message of type <em>Requested instructions: X</em>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.checkLenStack">
+<code class="descname">checkLenStack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.checkLenStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.checkLenStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current and maximum number of programmed instructions on the function stack.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Message of type <em>Programmed instructions: X (max len Y)</em>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="AD9958.AD9958_class.checkStackFinished">
+<code class="descname">checkStackFinished</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.checkStackFinished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.checkStackFinished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the function stack execution is finished. Returns True if the funtion stack is empty or under consytruction. Return False if the function stack is still in execution (after calling runStack()).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -159,8 +173,8 @@ Once the task stack gets started, the saved commands are performed in a sequenti
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stepSize</strong> (<em>int</em>) – Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}.</li>
-<li><strong>amplitudeRampRate</strong> (<em>int</em>) – DAC step size. Accepted values: 1-255.</li>
+<li><strong>stepSize</strong> (<em>int</em>) – DAC step size selector. Accepted values: {0,1,2,3}.</li>
+<li><strong>amplitudeRampRate</strong> (<em>int</em>) – Prescaler for the internal counter. Accepted values: 1-255.</li>
 </ul>
 </td>
 </tr>
@@ -225,7 +239,7 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
 <dl class="method">
 <dt id="AD9958.AD9958_class.runStack">
 <code class="descname">runStack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/AD9958.html#AD9958_class.runStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#AD9958.AD9958_class.runStack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Starts the function stack. Flushes the serial intput buffer in order.</p>
+<dd><p>Starts the function stack.</p>
 </dd></dl>
 
 <dl class="method">
@@ -297,8 +311,8 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>setCh0Enabled</strong> (<em>bool</em>) – Flag for channel 0.</li>
-<li><strong>setCh1Enabled</strong> (<em>bool</em>) – Flag for channel 1.</li>
+<li><strong>setCh0Enabled</strong> (<em>bool</em>) – Flag for channel 0 (True-&gt; comm. enabled ; False-&gt; comm. disabled).</li>
+<li><strong>setCh1Enabled</strong> (<em>bool</em>) – Flag for channel 1 (True-&gt; comm. enabled ; False-&gt; comm. disabled).</li>
 </ul>
 </td>
 </tr>
@@ -550,7 +564,7 @@ The current implementation of <a class="reference internal" href="#AD9958.AD9958
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">AD9958 Python library’s documentation!</a><ul>
+<li><a class="reference internal" href="#">AD9958 real time RF source</a><ul>
 <li><a class="reference internal" href="#introduction">INTRODUCTION</a></li>
 <li><a class="reference internal" href="#module-AD9958">CODE</a></li>
 </ul>

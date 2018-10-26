@@ -107,8 +107,22 @@
 
 	<span class="c1"># Starting communication</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">=</span><span class="n">ser</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
+		<span class="n">forceRestartFlag</span><span class="o">=</span><span class="kc">False</span>
+		<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">()):</span>
+			<span class="n">forceRestartFlag</span><span class="o">=</span><span class="kc">True</span>
+			<span class="nb">print</span> <span class="s2">&quot;Serial port closed.  Requesting restart.&quot;</span>
+		<span class="k">else</span><span class="p">:</span> 
+			<span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkStackFinished</span><span class="p">()):</span>
+				<span class="n">forceRestartFlag</span><span class="o">=</span><span class="kc">True</span>
+				<span class="nb">print</span> <span class="s2">&quot;Function stack not finished. Requesting restart.&quot;</span>
+		
+		<span class="k">if</span> <span class="n">forceRestartFlag</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+			<span class="nb">print</span> <span class="s2">&quot;Restarting serial port.&quot;</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="c1">#Waiting for microcontroller to start</span>
+		<span class="nb">print</span> <span class="s2">&quot;Serial port OK.&quot;</span>
+	
 	<span class="c1"># Modulation</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">modulationLevel</span><span class="o">=</span><span class="mi">0</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">PPC</span><span class="o">=</span><span class="mi">0</span>
@@ -125,12 +139,10 @@
 		<span class="bp">self</span><span class="o">.</span><span class="n">registerMap</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="c1">#Current register map</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">commonRegisters</span><span class="o">=</span><span class="p">[</span><span class="mh">0x00</span><span class="p">,</span><span class="mh">0x01</span><span class="p">,</span><span class="mh">0x02</span><span class="p">]</span> <span class="c1">#Registeres shared between channel 0 and channel 1</span>
 		
-		
-		
-		
-<span class="c1">###############################################################################################################</span>
-<span class="c1"># Functions oustide stack (no precise timing)</span>
-<span class="c1">###############################################################################################################</span>
+	
+	
+
+
 <div class="viewcode-block" id="AD9958_class.reset"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.reset">[docs]</a>	<span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">			Resets the AD9958 chip by pulsing the RESET pin.</span>
@@ -203,9 +215,9 @@
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Sets the enabled channels for the communication (read/write) of the AD9958 registers. The communication will only affect the channel with a logic high value.</span>
 <span class="sd">			</span>
-<span class="sd">		:param setCh0Enabled: Flag for channel 0.</span>
+<span class="sd">		:param setCh0Enabled: Flag for channel 0 (True-&gt; comm. enabled ; False-&gt; comm. disabled).</span>
 <span class="sd">		:type setCh0Enabled: bool</span>
-<span class="sd">		:param setCh1Enabled: Flag for channel 1.</span>
+<span class="sd">		:param setCh1Enabled: Flag for channel 1 (True-&gt; comm. enabled ; False-&gt; comm. disabled).</span>
 <span class="sd">		:type setCh1Enabled: bool</span>
 <span class="sd">		</span>
 <span class="sd">		.. note::</span>
@@ -637,7 +649,7 @@
 				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span> <span class="o">*</span><span class="n">NDACSteps</span> <span class="o">*</span><span class="n">timeStep</span> <span class="o">*</span><span class="p">(</span><span class="n">RDW</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="p">)</span> <span class="o">-</span> <span class="n">RDW</span> <span class="o">*</span><span class="n">slope</span> <span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">NDACSteps</span><span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span> <span class="n">NDACSteps</span><span class="p">)</span><span class="o">*</span> <span class="n">timeStep</span> <span class="o">+</span>  <span class="mi">2</span> <span class="o">*</span><span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">NDACSteps</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">timeStep</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 				<span class="n">figureOfMerit</span><span class="o">+=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span> <span class="n">slope</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="p">(</span><span class="n">rampUpTime</span> <span class="o">-</span> <span class="n">NDACSteps</span><span class="o">*</span><span class="n">timeStep</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
 				
-				<span class="c1">#Saving RSRR,RDW and figureOfMerit</span>
+				<span class="c1"># Saving RSRR,RDW and figureOfMerit</span>
 				<span class="k">if</span> <span class="p">(</span><span class="n">RDW</span><span class="o">*</span><span class="n">NDACStepsCeil</span><span class="o">+</span><span class="n">S0</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="p">:</span> <span class="c1">#Avoids sweep overflow</span>
 					<span class="n">RDWArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RDWArray</span><span class="p">,[</span><span class="n">RDW</span><span class="p">])</span>
 					<span class="n">RSRRArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RSRRArray</span><span class="p">,[</span><span class="n">RSRR</span><span class="p">])</span>
@@ -843,23 +855,47 @@
 		
 <div class="viewcode-block" id="AD9958_class.runStack"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.runStack">[docs]</a>	<span class="k">def</span> <span class="nf">runStack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Starts the function stack. Flushes the serial intput buffer in order.</span>
+<span class="sd">		Starts the function stack. </span>
 <span class="sd">		&quot;&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;runStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total intructions: </span><span class="si">%d</span><span class="s2"> (max 1000) &quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span><span class="p">)</span>
+		
 		<span class="k">return</span></div>
 			
-	
-<div class="viewcode-block" id="AD9958_class.checkStackFinihed"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkStackFinihed">[docs]</a>	<span class="k">def</span> <span class="nf">checkStackFinihed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AD9958_class.checkLenRequest"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkLenRequest">[docs]</a>	<span class="k">def</span> <span class="nf">checkLenRequest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Checks if the function stack has finished.</span>
+<span class="sd">		Returns the number of requested instructions to the function stack. </span>
+<span class="sd">		</span>
+<span class="sd">		:returns: Message of type *Requested instructions: X*.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+	
+		<span class="k">return</span> <span class="s2">&quot;Requested instructions: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">instructionCounter</span></div>
+
+			
+			
+<div class="viewcode-block" id="AD9958_class.checkLenStack"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkLenStack">[docs]</a>	<span class="k">def</span> <span class="nf">checkLenStack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns the current and maximum number of programmed instructions on the function stack. </span>
+<span class="sd">		</span>
+<span class="sd">		:returns: Message of type *Programmed instructions: X (max len Y)*.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;checkLenStack </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">txtStr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">txtStr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#returns all execpt the linebreak</span></div>
+	
+		
+
+			
+<div class="viewcode-block" id="AD9958_class.checkStackFinished"><a class="viewcode-back" href="../index.html#AD9958.AD9958_class.checkStackFinished">[docs]</a>	<span class="k">def</span> <span class="nf">checkStackFinished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Checks if the function stack execution is finished. Returns True if the funtion stack is empty or under consytruction. Return False if the function stack is still in execution (after calling runStack()).</span>
 <span class="sd">		</span>
 <span class="sd">		:returns: True/False.</span>
 <span class="sd">	</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;checkStackFinished </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;OK&quot;</span><span class="p">:</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">==</span><span class="s2">&quot;OK</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">:</span>
 			<span class="k">return</span> <span class="kc">True</span>
 		<span class="k">else</span><span class="p">:</span>
 			<span class="k">return</span> <span class="kc">False</span></div>
@@ -880,9 +916,9 @@
 <span class="sd">		.. math::</span>
 <span class="sd">			8.2\dfrac{amplitudeRampRate}{2^{stepSize}}\;\; us</span>
 <span class="sd">		</span>
-<span class="sd">		:param stepSize: Prescaler for the duration of each ramp up/down step. Accepted values:{0,1,2,3}. </span>
+<span class="sd">		:param stepSize: DAC step size selector. Accepted values: {0,1,2,3}. </span>
 <span class="sd">		:type stepSize: int</span>
-<span class="sd">		:param amplitudeRampRate: DAC step size. Accepted values: 1-255.</span>
+<span class="sd">		:param amplitudeRampRate: Prescaler for the internal counter. Accepted values: 1-255.</span>
 <span class="sd">		:type amplitudeRampRate: int</span>
 <span class="sd">		&quot;&quot;&quot;</span>
 		<span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">amplitudeRampRate</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">stepSize</span><span class="o">&lt;&lt;</span><span class="mi">14</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="mi">3</span><span class="o">&lt;&lt;</span><span class="mi">11</span><span class="p">)</span>
