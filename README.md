@@ -71,7 +71,7 @@ In the following table the wiring between the microcontroller and the Manual I/0
 Two *triggers* have been implemented onto the chipKit Max32:
 * **Trigger in**. The execution of the *functions stack* can be held until a rising edge is detected on the corresponding PIN 18. Please make sure to adjust the voltage level of your trigger input to 3.3V.
 
-* **Trigger out**. Used for monitoring purposes (trigerring adquisition of scopes) or possible external RF switches.
+* **Trigger out**. Used for monitoring purposes (e.g. triggering the adquisition of your oscilloscope) or possible external RF switches.
 
 ## Setting up the chipKit Max32
 The firmware required for the chipKit Max32 microcontroller can be found in the *DriverChipkit/AD9958Driver* folder:
@@ -88,6 +88,8 @@ The Python APi is available by adding the *AD9958* folder into the working direc
 
 Please refer to the provided **Examples** for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use from inside the *Examples* folder.
 
+## Final remark
+The current repository is MIT licensed, feel free to use it, improrve it and give me feedback on paugomezkabelka@gmail.com.  
 
 
 
