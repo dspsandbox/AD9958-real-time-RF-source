@@ -23,6 +23,8 @@ In the following I will give closer details on the hardware needed, internal con
 
 * **Computer** with a Python 2.7 distribution installed (my personal preference is to directly install the appropiate [Anaconda](https://www.anaconda.com/download/) distribution). Please note that the current project was developed under Python 2.7, the compatibility with Python 3 has not been tested yet. In order to programm the chipKIT Max32, the Arduino IDE and an additional board manager have to be installed. The whole procedure is well explained [here](https://chipkit.net/wiki/index.php?title=ChipKIT_core).
 
+* **RF Transformer (optional)**. By default, the two DAC outputs of the AD9958 eval board are decoupled by using [ADTT1-1](https://www.minicircuits.com/WebStore/dashboard.html?model=ADTT1-1) RF transformers, which operate from 0.3-300 MHz. For my application lower RF frequencies were required and I replaced the transformers by two [ADT1-6T+](https://www.minicircuits.com/WebStore/dashboard.html?model=ADT1-6T%2B) with a dynamic range of 0.03-125 MHz.
+
 #### Setting up the AD9958 eval board
 Please follow the isntructions in the above mentioned [documentation] for:
 * Setting the **jumpers** for *External Control*.
@@ -54,8 +56,7 @@ In the following table the wiring between the microcontroller and the Manual I/0
 | NC \*\* | 19 |Trigger out |
 
 
-
-\* The current implementation uses the *Single-Bit Serial 3-Wire mode* of the AD9958.
+\* The current project uses the *Single-Bit Serial 3-Wire mode* of the AD9958.
 
 \*\*Not connected.
 
