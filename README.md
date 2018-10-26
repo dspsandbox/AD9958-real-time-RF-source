@@ -3,14 +3,14 @@ This **AD9958 real time RF source** repository consists of set of Python and C++
 
 #### Highlighted capabilities
 * Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
-* 2,4,8,16 bit modulation mode
-* Sweep mode with automatic ramp optimization
+* 2,4,8,16 bit modulation mode.
+* Sweep mode with automatic ramp optimization.
+* Triggered execution (<0.1 us time jitter)
+* Progammable internal delay (~62.5ns step size, ~125ns minimum delay time)
+* Up to 1000 programmble instructions.
 
-* Up to 1000 programabel instructions
 
-
-
-In the following I will give closer details on the hardware needed, programming of the Chikit Max 32 microcontroller, internal connection and about on Python API.
+In the following I will give closer details on the hardware needed, internal connection, programming of the Chikit Max 32 microcontroller and about on Python API.
 
 ## Hardware
 * **AD9958 eval board** Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [evaluation bard](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
