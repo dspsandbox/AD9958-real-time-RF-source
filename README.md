@@ -1,7 +1,7 @@
 ## Introduction
-This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of an AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/uW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
+This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of an AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/MW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
 
-Python API documentation available under https://gkpau.github.io/AD9958-real-time-RF-source/.
+Python API documentation available under https://dspsandbox.github.io/AD9958-real-time-RF-source/.
 
 #### Operating principle
 The operation of this real-time RF source can be understood in terms of 3 effective layers. The first one is a Python API, designed to send commands to the RF synthesizer in a comprehensive and user-friendly way. Behind the scenes, this layer converts the commands into register adresses and register values of the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcontroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demand. Note that the sequential execution of the commands is entirely performed on the side of the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958, setting its internal registers. The AD9958 itself is the third effective layer, which generates the RF signal according to its internal registers and profile pins.
