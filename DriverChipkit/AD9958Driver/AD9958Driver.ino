@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright (c) 2018 Pau Gomez Kabelka <paugomezkabelka@gmail.com>
+Copyright (c) 2019 DSPsandbox (Pau Gomez pau.gomez@dspsandbox.org)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -700,5 +700,3 @@ void resetTimer_FS(uint32_t *dataIn){
 void waitForTimer_FS(uint32_t *dataIn){
 	waitForTimer(dataIn[0]);
 };
-
-

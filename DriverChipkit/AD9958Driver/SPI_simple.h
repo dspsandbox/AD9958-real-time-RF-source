@@ -1,11 +1,11 @@
 
-/* 
+/*
 Library created for simple, fast and controllable SPI communication. Specially avoiding the arduino style overhead.
 
 
 MIT License
 
-Copyright (c) 2019 DSPsandbox (pau.gomez@dspsandbox.org)
+Copyright (c) 2019 DSPsandbox (Pau Gomez pau.gomez@dspsandbox.org)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-*/ 
+*/
 #if !defined(_SPI_SIMPLE_H_INCLUDED)
 #define _SPI_SIMPLE_H_INCLUDED
 
@@ -38,11 +38,11 @@ SOFTWARE.
 
 class SPI_simple_Class {
 public:
-	
+
 	uint32_t transfer(uint32_t dataOut);
-	void begin(int BRG, int MODE, int SMP, int CKE, int CKP);	
+	void begin(int BRG, int MODE, int SMP, int CKE, int CKP);
 	void end();
-  
+
 };
 
 extern SPI_simple_Class SPI_simple;
