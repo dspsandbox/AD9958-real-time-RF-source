@@ -12,7 +12,7 @@
 # 	* TRIGG_OUT is used for monitoring the pulses 
 #-----------------------------------------------------------------------------
 # MIT License
-# Copyright (c) 2018 Pau Gomez Kabelka <paugomezkabelka@gmail.com>
+# Copyright (c) 2019 DSPsandbox (pau.gomez@dspsandbox.org)
 ##############################################################################
 
 from __future__ import division
