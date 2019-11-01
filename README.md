@@ -1,5 +1,5 @@
-## Introduction and capabilities
-Please see [dspsandbox/AD9958-real-time-RF-source](https://www.dspsandbox.org/AD9958-real-time-RF-source).
+## Introduction
+Please see [DSPsandbox/AD9958-real-time-RF-source](https://www.dspsandbox.org/AD9958-real-time-RF-source).
 
 ## Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [AD9958 evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
