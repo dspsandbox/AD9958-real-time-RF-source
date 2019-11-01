@@ -14,13 +14,13 @@ Please see [DSPsandbox/AD9958-real-time-RF-source](https://www.dspsandbox.org/AD
 
 * **RF Transformer (optional)**. By default, the two DAC outputs of the AD9958 eval board are decoupled by using [ADTT1-1](https://www.minicircuits.com/WebStore/dashboard.html?model=ADTT1-1) RF transformers, which operate from 0.3-300 MHz. For my application lower RF frequencies were required and I replaced the transformers by two [ADT1-6T+](https://www.minicircuits.com/WebStore/dashboard.html?model=ADT1-6T%2B) (dynamic range of 0.03-125 MHz).
 
-## Setting up the AD9958 eval board
+# Setting up the AD9958 eval board
 Please follow the instructions in the above mentioned [documentation](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html) for:
 * Setting the **jumpers** for *External Control*.
 * Setting the **jumper** for *External REF_CLK*.
 * Proving the 1.8V and 3.3V bias voltages on the required connectors.
 
-## Connections between AD9958 eval board chipKit Max32 
+# Connections between AD9958 eval board chipKit Max32 
 In the following table the wiring between the microcontroller and the Manual I/0 Control Header of the AD9958 eval board are described. Please note that although the Manual I/O Control Headers have two row of pins available only the lower one is connected to the AD9958.
 
 
@@ -49,7 +49,7 @@ In the following table the wiring between the microcontroller and the Manual I/0
 
 \*\*Not connected.
 
-## Triggers
+# Triggers
 Two triggers have been implemented onto the chipKit Max32:
 * **Trigger in**. The execution of the *functions stack* can be held until a rising edge is detected on the corresponding PIN 18. Please make sure to adjust the voltage level of your trigger input to 3.3V.
 
