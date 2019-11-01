@@ -1,23 +1,5 @@
-## Introduction
-This **AD9958 real time RF source** repository consists of a set of Python and C++ libraries for real-time control of an AD9958 direct digital synthesizer (DDS). The sythesizer has been successfully implemented in the group of Prof. Morgan Mitchell ([ICFO](www.ICFO.eu)) for RF/MW state preparation and manipulation of a Rb 87 Bose-Einstein Condensate.
-
-Python API documentation available under https://dspsandbox.github.io/AD9958-real-time-RF-source/.
-
-#### Operating principle
-The operation of this real-time RF source can be understood in terms of 3 effective layers. The first one is a Python API, designed to send commands to the RF synthesizer in a comprehensive and user-friendly way. Behind the scenes, this layer converts the commands into register adresses and register values of the AD9958. The sets of register addresses and values are forwarded (via serial communication) to the second layer: the chipKit Max 32. This microcontroller builds up a *functions stack* which saves the requested commands/tasks and executes them sequentially on demand. Note that the sequential execution of the commands is entirely performed on the side of the microcontroller (exact timing) and can be triggered by an external TTL trigger. During most of the tasks, the microcontroller communicates over an SPI bus with the AD9958, setting its internal registers. The AD9958 itself is the third effective layer, which generates the RF signal according to its internal registers and profile pins.
-
-#### Highlighted capabilities
-* Separate control of amplitude, phase and frequency of channel 0 (ch0) and channel 1 (ch1) of the AD9958.
-* 2,4,8,16 bit modulation mode.
-* Sweep mode with automatic ramp optimization.
-* Triggered execution (<0.1 us time jitter).
-* Progammable internal delay (~62.5ns step size, ~125ns minimum delay time).
-* Up to 1000 programmble instructions.
-
-
-
-
-In the following sections I give closer details on the hardware needed, internal connections, programming of the Chikit Max 32 and the Python API.
+## Introduction and capabilities
+Please see [dspsandbox/AD9958-real-time-RF-source](https://www.dspsandbox.org/AD9958-real-time-RF-source).
 
 ## Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [AD9958 evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
@@ -83,8 +65,8 @@ The firmware required for the chipKit Max32 microcontroller can be found in the 
 For setting up the chipKit Max32 make shure you have installed the IDE and the additional board manager (explained above). After, compile and upload the *AD9958Driver.ino* file.
 
 
-## Python API
-The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available under https://gkpau.github.io/AD9958-real-time-RF-source/.
+## Python API and Examples
+The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available under https://dspsandbox.github.io/AD9958-real-time-RF-source/.
 
 Please refer to the provided **Examples** for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use (it is not necessary to move *AD9958* into the *Examples* folder).
 
