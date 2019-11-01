@@ -66,9 +66,9 @@ For setting up the chipKit Max32 make shure you have installed the IDE and the a
 
 
 ## Python API and Examples
-The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available under https://dspsandbox.github.io/AD9958-real-time-RF-source/.
+The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available [here](https://dspsandbox.github.io/AD9958-real-time-RF-source/).
 
-Please refer to the provided **Examples** for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use (it is not necessary to move *AD9958* into the *Examples* folder).
+Please refer to the provided [Examples](https://github.com/dspsandbox/AD9958-real-time-RF-source/tree/master/Examples) for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use (it is not necessary to move *AD9958* into the *Examples* folder).
 
 ## Final remark
 The current repository is MIT licensed, feel free to use it, improve it and give me feedback on pau.gomez@dspsandbox.org.  
