@@ -42,7 +42,7 @@ SerialCommand sCmd;
 
 typedef void (*generalFunction)(uint32_t* ); //General function type that accepts an uint32_t array as input param
 generalFunction functionStack [LEN_FUNCTIONSTACK];
-uint32_t parameterArray[LEN_FUNCTIONSTACK][LEN_PARAM];
+uint32_t parameterStack[LEN_FUNCTIONSTACK][LEN_PARAM];
 int functionIndex=0;
 
 int triggerValue=0;
@@ -526,9 +526,9 @@ void setRegister_ConstructFS(){
 	doIO_update = strtoul(arg,NULL,0);
 	
 	functionStack[functionIndex]=setRegister_FS;
-	parameterArray[functionIndex][0]=regAddress;
-	parameterArray[functionIndex][1]=regValue;
-	parameterArray[functionIndex][2]=doIO_update;
+	parameterStack[functionIndex][0]=regAddress;
+	parameterStack[functionIndex][1]=regValue;
+	parameterStack[functionIndex][2]=doIO_update;
 	
 	functionIndex++;
 	return;
@@ -572,8 +572,8 @@ void setProfilePins_ConstructFS(){
 	
 
 	functionStack[functionIndex]= setProfilePins_FS;
-	parameterArray[functionIndex][0]=flag;
-	parameterArray[functionIndex][1]=mask;
+	parameterStack[functionIndex][0]=flag;
+	parameterStack[functionIndex][1]=mask;
 
 	functionIndex++;
 	return;
@@ -587,7 +587,7 @@ void setTriggerOut_ConstructFS(){
 	arg = sCmd.next();
 	flag=strtoul(arg,NULL,0);
 	functionStack[functionIndex]= setTriggerOut_FS;
-	parameterArray[functionIndex][0]=flag;
+	parameterStack[functionIndex][0]=flag;
 	
 	functionIndex++;
 	return;
@@ -610,7 +610,7 @@ void delayTimer_ConstructFS(){
 	clockCycles=strtoul(arg,NULL,0);
 	
 	functionStack[functionIndex]= delayTimer_FS;
-	parameterArray[functionIndex][0]=clockCycles;
+	parameterStack[functionIndex][0]=clockCycles;
 	
 	functionIndex++;
 	return;	
@@ -632,7 +632,7 @@ void waitForTimer_ConstructFS(){
 	clockCycles=strtoul(arg,NULL,0);
 	
 	functionStack[functionIndex]= waitForTimer_FS;
-	parameterArray[functionIndex][0]=clockCycles;
+	parameterStack[functionIndex][0]=clockCycles;
 	
 	functionIndex++;
 	return;	
@@ -646,7 +646,7 @@ void runStack(){
 	noInterrupts(); //Reliable execution/timing
 	TMR4=0;
 	for(int j=0; j<functionIndex;j++){
-		functionStack[j](parameterArray[j]);
+		functionStack[j](parameterStack[j]);
 		
 	}
 	interrupts();
