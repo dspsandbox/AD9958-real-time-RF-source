@@ -77,7 +77,7 @@ RF.clearPhaseAccumulator()
 RF.waitTriggerIn() #Waits for a rising edge
 #RF.clearPhaseAccumulator()  # Add this line if the phase should be reset at this point of the code
 RF.setTriggerOut(1) # output trigger for monitoring purposes
-RF.delayTimer(10e-6)
+RF.delayTimer(20e-6)
 RF.setTriggerOut(0) 
 
 ###################################
