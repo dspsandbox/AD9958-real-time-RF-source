@@ -67,10 +67,10 @@ RF.setAmplitude(0,1)
 RF.setFreq(0,1e6)
 RF.setPhase(0,0)
 
-
+#Triggered execution
 RF.waitTriggerIn() #Waits for rising edge
-RF.clearPhaseAccumulator()
-RF.setTriggerOut(1) # output trigger for monitoring purposes
+RF.clearPhaseAccumulator() #Optional phase reset
+RF.setTriggerOut(1) #Output trigger for monitoring purposes
 RF.setAutomaticRURDPins(1,0)
 RF.delayTimer(20e-6)
 RF.setAutomaticRURDPins(0,0)
