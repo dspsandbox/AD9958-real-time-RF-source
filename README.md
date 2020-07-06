@@ -1,6 +1,9 @@
 # Introduction
 Please see [DSPsandbox/AD9958-real-time-RF-source](https://www.dspsandbox.org/AD9958-real-time-RF-source).
+# Python API and Examples
+The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available [here](https://dspsandbox.github.io/AD9958-real-time-RF-source/).
 
+Please refer to the provided [Examples](https://github.com/dspsandbox/AD9958-real-time-RF-source/tree/master/Examples) for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use (it is not necessary to move *AD9958* into the *Examples* folder).
 # Hardware
 * **AD9958 eval board**. Dual channel DDS with a DAC sampling rate of upt to 500 MHz. For further details please check the documentation on the [AD9958](https://www.analog.com/en/products/ad9958.html) and the [AD9958 evaluation board](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/eval-ad9958.html).
 
@@ -63,12 +66,6 @@ The firmware required for the chipKit Max32 microcontroller can be found in the 
 * **SerialCommand library** -> Serial command interpreter. Developed by S. Rado and S. Cogswell. 
 
 For setting up the chipKit Max32 make shure you have installed the IDE and the additional board manager (explained above). After, compile and upload the *AD9958Driver.ino* file.
-
-
-# Python API and Examples
-The Python API is available by adding the *AD9958* folder into the working directory of your Python interpreter. A full documentation is available [here](https://dspsandbox.github.io/AD9958-real-time-RF-source/).
-
-Please refer to the provided [Examples](https://github.com/dspsandbox/AD9958-real-time-RF-source/tree/master/Examples) for a detailed implementation of the different functionalities of the AD9958. Note that when downloading the current repository the set of examples are ready to use (it is not necessary to move *AD9958* into the *Examples* folder).
 
 # Final remark
 The current repository is MIT licensed, feel free to use it, improve it and give me feedback on pau.gomez@dspsandbox.org.  
