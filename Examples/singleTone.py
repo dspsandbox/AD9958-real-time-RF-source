@@ -60,7 +60,7 @@ RF.setSingleToneMode()
 #Channel 0
 RF.setEnabledChannels(1,0)  #Enable communication only to ch0
 RF.setFreq(0,1e6) #1 MHz
-RF.setAmplitude(0,0.5) #half amplitude
+RF.setAmplitude(0,1) #full amplitude
 RF.setPhase(0,0) #0 deg
 
 
