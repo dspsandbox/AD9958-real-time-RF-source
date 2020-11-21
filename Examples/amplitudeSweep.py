@@ -63,7 +63,7 @@ RF.setSweepMode("amplitude")
 
 #Channel 0
 RF.setEnabledChannels(1,0)
-RF.setSweepParameters(0.25,0.99,10e-6,20e-6)
+RF.setSweepParameters(0.25,0.8,10e-6,20e-6)
 RF.setFreq(0,1e6)
 RF.setPhase(0,0)
 
@@ -71,7 +71,7 @@ RF.setPhase(0,0)
 
 #Channel 1
 RF.setEnabledChannels(0,1)
-RF.setSweepParameters(0.1,0.99,30e-6,10e-6)
+RF.setSweepParameters(0.1,0.8,30e-6,10e-6)
 RF.setFreq(0,1e6)
 RF.setPhase(0,0)
 
